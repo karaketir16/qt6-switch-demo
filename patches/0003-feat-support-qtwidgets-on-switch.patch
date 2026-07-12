@@ -1,0 +1,46 @@
+From caaff5d399d9020ef53c93f79ed106a8d59921de Mon Sep 17 00:00:00 2001
+From: Osman Karaketir <osmankaraketir@gmail.com>
+Date: Sun, 12 Jul 2026 22:35:15 +0100
+Subject: [PATCH 3/4] feat: support qtwidgets on switch
+
+---
+ src/widgets/dialogs/qfiledialog.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/widgets/dialogs/qfiledialog.cpp b/src/widgets/dialogs/qfiledialog.cpp
+index 5a86ef9f..64d4c65f 100644
+--- a/src/widgets/dialogs/qfiledialog.cpp
++++ b/src/widgets/dialogs/qfiledialog.cpp
+@@ -38,7 +38,7 @@
+ #include <qapplication.h>
+ #include <qstylepainter.h>
+ #include "ui_qfiledialog.h"
+-#if defined(Q_OS_UNIX)
++#if defined(Q_OS_UNIX) && !defined(Q_OS_SWITCH)
+ #include <pwd.h>
+ #include <unistd.h> // for pathconf() on OS X
+ #elif defined(Q_OS_WIN)
+@@ -1120,6 +1120,12 @@ void QFileDialog::selectUrl(const QUrl &url)
+ }
+ 
+ #ifdef Q_OS_UNIX
++#if defined(Q_OS_SWITCH)
++static QString homeDirFromPasswdEntry(const QString &path, const QByteArray &)
++{
++    return path;
++}
++#else
+ static QString homeDirFromPasswdEntry(const QString &path, const QByteArray &userName)
+ {
+ #if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD) && !defined(Q_OS_WASM)
+@@ -1145,6 +1151,7 @@ static QString homeDirFromPasswdEntry(const QString &path, const QByteArray &use
+     return QFile::decodeName(pw->pw_dir);
+ #endif // defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD) && !defined(Q_OS_WASM)
+ }
++#endif
+ 
+ Q_AUTOTEST_EXPORT QString qt_tildeExpansion(const QString &path)
+ {
+-- 
+2.50.1 (Apple Git-155)
+

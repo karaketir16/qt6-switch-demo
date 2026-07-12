@@ -1,0 +1,96 @@
+From 5dfbfa6be1a37fe1c0074173a0df70ec88986635 Mon Sep 17 00:00:00 2001
+From: Osman Karaketir <osmankaraketir@gmail.com>
+Date: Sun, 12 Jul 2026 22:53:46 +0100
+Subject: [PATCH 4/4] feat: embed switch default font
+
+---
+ src/plugins/platforms/switch/CMakeLists.txt         | 13 +++++++++++++
+ src/plugins/platforms/switch/main.cpp               |  6 ++++++
+ .../platforms/switch/qnxswitchintegration.cpp       | 12 ++++++++++--
+ 3 files changed, 29 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/platforms/switch/CMakeLists.txt b/src/plugins/platforms/switch/CMakeLists.txt
+index 5ee4799b..ff3f325e 100644
+--- a/src/plugins/platforms/switch/CMakeLists.txt
++++ b/src/plugins/platforms/switch/CMakeLists.txt
+@@ -13,3 +13,16 @@ target_link_libraries(QSwitchIntegrationPlugin PRIVATE
+     Qt::Core
+     Qt::GuiPrivate
+ )
++
++set(switchfonts_resource_files
++    "${QtBase_SOURCE_DIR}/src/3rdparty/wasm/DejaVuSans.ttf"
++)
++
++qt_internal_add_resource(QSwitchIntegrationPlugin "switchfonts"
++    PREFIX
++        "/qt-switch-fonts"
++    BASE
++        "${QtBase_SOURCE_DIR}/src/3rdparty/wasm"
++    FILES
++        ${switchfonts_resource_files}
++)
+diff --git a/src/plugins/platforms/switch/main.cpp b/src/plugins/platforms/switch/main.cpp
+index 6f74e8ee..baa81fa2 100644
+--- a/src/plugins/platforms/switch/main.cpp
++++ b/src/plugins/platforms/switch/main.cpp
+@@ -2,6 +2,11 @@
+ 
+ #include <qpa/qplatformintegrationplugin.h>
+ 
++static inline void initSwitchFontResources()
++{
++    Q_INIT_RESOURCE(switchfonts);
++}
++
+ class QSwitchIntegrationPlugin final : public QPlatformIntegrationPlugin
+ {
+     Q_OBJECT
+@@ -18,6 +23,7 @@ public:
+             return nullptr;
+         }
+ 
++        initSwitchFontResources();
+         return new QNxSwitchIntegration;
+     }
+ };
+diff --git a/src/plugins/platforms/switch/qnxswitchintegration.cpp b/src/plugins/platforms/switch/qnxswitchintegration.cpp
+index 37343826..a0d49323 100644
+--- a/src/plugins/platforms/switch/qnxswitchintegration.cpp
++++ b/src/plugins/platforms/switch/qnxswitchintegration.cpp
+@@ -5,6 +5,7 @@
+ #include <QCoreApplication>
+ #include <QGuiApplication>
+ #include <QByteArray>
++#include <QFile>
+ #include <QtGui/private/qguiapplication_p.h>
+ #include <QtGui/private/qfreetypefontdatabase_p.h>
+ #include <cstdio>
+@@ -67,7 +68,7 @@ QByteArray switchFontPath()
+     const QByteArray configured = qgetenv("QT_SWITCH_FONTFILE");
+     if (!configured.isEmpty())
+         return configured;
+-    return QByteArrayLiteral("sdmc:/qt6-switch-font.ttf");
++    return QByteArrayLiteral(":/qt-switch-fonts/DejaVuSans.ttf");
+ }
+ 
+ Qt::KeyboardModifiers switchModifiers(u64 buttons)
+@@ -254,7 +255,14 @@ public:
+     void populateFontDatabase() override
+     {
+         const QByteArray fontPath = switchFontPath();
+-        const QByteArray fontData = loadSwitchFile(fontPath.constData());
++        QByteArray fontData;
++        if (fontPath.startsWith(":/")) {
++            QFile embeddedFont(QString::fromLatin1(fontPath));
++            if (embeddedFont.open(QIODevice::ReadOnly))
++                fontData = embeddedFont.readAll();
++        } else {
++            fontData = loadSwitchFile(fontPath.constData());
++        }
+         if (fontData.isEmpty()) {
+             traceSwitch("QSwitchFontDatabase: no font file");
+             return;
+-- 
+2.50.1 (Apple Git-155)
+
