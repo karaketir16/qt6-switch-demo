@@ -27,7 +27,7 @@ docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/demo/widgets-app" \
   devkitpro/devkita64 \
-  make clean nro
+  bash -lc 'make -j"$(nproc)" clean nro'
 ```
 
 ## Outputs
@@ -38,4 +38,3 @@ docker run --rm \
 ## Runtime Notes
 
 - The current plugin embeds a default font.
-- No separate `qt6-switch-font.ttf` file is required for this demo anymore.

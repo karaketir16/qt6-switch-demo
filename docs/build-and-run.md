@@ -1,16 +1,20 @@
 # Build and Run
 
-This document covers the full build flow for the patched Qt tree and the demo application.
+This document covers the full build flow for the submodule-based Qt tree and the demo application.
 
-## 1. Apply the Patch Series
+## 1. Pull the Submodule
 
-If you want to patch a separate clean checkout instead of using the included submodule:
+After cloning the repository:
 
 ```bash
-./scripts/apply-qtbase-patches.sh /path/to/qtbase ./patches
+git submodule update --init --recursive
 ```
 
-If you use the included submodule, this step is already represented by `third_party/qtbase`.
+To update the submodule later:
+
+```bash
+git submodule update --remote --recursive
+```
 
 ## 2. Build Host Tools
 
@@ -38,7 +42,7 @@ docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/build/qtbase-switch" \
   devkitpro/devkita64 \
-  bash -lc 'cmake --build "$(pwd)" --parallel 4'
+  bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)"'
 ```
 
 At minimum, the following outputs should exist:
@@ -63,7 +67,7 @@ docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/demo/widgets-app" \
   devkitpro/devkita64 \
-  make clean nro
+  bash -lc 'make -j"$(nproc)" clean nro'
 ```
 
 Expected outputs:
@@ -88,5 +92,3 @@ ASTRIS_DATA="/path/to/astrisData" \
 The current setup uploads:
 
 - `/switch/qt6-switch-widgets-probe.nro`
-
-Because the font is now embedded, there is no longer a separate font file to deploy.

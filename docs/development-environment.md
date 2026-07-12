@@ -36,15 +36,11 @@ Astris paths are provided via environment variables instead of hardcoded machine
 
 ### Qt Base Source Checkout
 
-You have two options:
-
-1. Use the included git submodule:
+Use the included git submodule:
 
 ```bash
 git submodule update --init --recursive
 ```
-
-2. Or clone a separate clean upstream checkout and apply the patch series manually.
 
 ### Docker Container for Switch Cross-Building
 

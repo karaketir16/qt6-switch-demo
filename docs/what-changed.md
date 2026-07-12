@@ -7,7 +7,7 @@ This document summarizes the key changes made to Qt and the demo during the brin
 1. Add a Nintendo Switch device target and Switch platform plugin scaffolding for `qtbase`.
 2. Bring up the runtime enough for framebuffer presentation and event dispatching.
 3. Support a Qt Widgets demo build and fix a Switch-specific link issue in `QFileDialog`.
-4. Embed a default font into the Switch plugin so the demo no longer depends on an external SD card font file.
+4. Embed a default font into the Switch plugin.
 
 ## Qt Runtime Changes
 
@@ -39,4 +39,3 @@ sdmc:/qt6-switch-font.ttf
 The final version embeds `DejaVuSans.ttf` directly into the Switch plugin resources and initializes those resources from the static plugin entry point.
 
 That change removes a manual deployment step and makes the demo easier to share and test.
-

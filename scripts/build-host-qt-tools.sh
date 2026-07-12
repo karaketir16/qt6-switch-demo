@@ -28,7 +28,7 @@ docker run --rm \
             -DQT_FEATURE_testlib=OFF \
             -DQT_FEATURE_widgets=OFF \
             -DFEATURE_developer_build=ON &&
-        cmake --build '${BUILD_DIR}' --parallel 4 --target host_tools
+        cmake --build '${BUILD_DIR}' --parallel \"\$(nproc)\" --target host_tools
     "
 
 echo
