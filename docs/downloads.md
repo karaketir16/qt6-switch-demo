@@ -6,11 +6,13 @@ This document records what was downloaded or pulled during development, where it
 
 ### Qt Base Source
 
-- Source: `https://code.qt.io/qt/qtbase.git`
-- Local checkout used during development: `/Volumes/T7/sdk/qt6-switch-src/qtbase`
+- Upstream source: `https://code.qt.io/qt/qtbase.git`
+- GitHub mirror used for the fork workflow: `https://github.com/qt/qtbase`
+- Fork used by this repository: `https://github.com/karaketir16/qtbase`
+- Branch used by the submodule: `qt6-switch-demo-v6.8.3`
 - Base version used for the patch series: `v6.8.3`
 
-This repository does not vendor the full Qt source tree. Instead, it ships a patch series that can be applied to a clean `qtbase` checkout.
+This repository now includes the patched Qt source as a git submodule at `third_party/qtbase`. It also keeps the patch series in `patches/` for auditability.
 
 ### devkitPro Switch Build Container
 
@@ -22,7 +24,8 @@ This container provides the Switch-targeting toolchain and libraries used for cr
 
 ### Astris Emulator
 
-- Local app path used during verification: `/Volumes/T7/Applications/Astris/Astris.app`
+- Used during verification, but not redistributed by this repository.
+- Runtime path is configured through `ASTRIS_APP`.
 
 This repository documents the Astris workflow that was used, but it does not redistribute Astris itself.
 
@@ -30,7 +33,7 @@ This repository documents the Astris workflow that was used, but it does not red
 
 - Font file embedded into the Switch plugin: `DejaVuSans.ttf`
 - Source location inside the Qt tree:
-  `/Volumes/T7/sdk/qt6-switch-src/qtbase/src/3rdparty/wasm/DejaVuSans.ttf`
+  `third_party/qtbase/src/3rdparty/wasm/DejaVuSans.ttf`
 
 The final setup embeds the font into the Switch Qt runtime, so there is no longer a separate SD card font deployment step for the demo.
 
@@ -44,4 +47,3 @@ This repository does not automatically download:
 - GitHub CLI
 
 Those tools are expected to be installed separately.
-

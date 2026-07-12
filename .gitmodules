@@ -1,0 +1,4 @@
+[submodule "third_party/qtbase"]
+	path = third_party/qtbase
+	url = git@github.com:karaketir16/qtbase.git
+	branch = qt6-switch-demo-v6.8.3

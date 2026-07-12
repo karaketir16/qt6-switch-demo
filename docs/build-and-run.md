@@ -4,23 +4,20 @@ This document covers the full build flow for the patched Qt tree and the demo ap
 
 ## 1. Apply the Patch Series
 
-From a clean `qtbase` checkout at `v6.8.3`:
+If you want to patch a separate clean checkout instead of using the included submodule:
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/apply-qtbase-patches.sh \
-  /Volumes/T7/sdk/qt6-switch-src/qtbase \
-  /Volumes/T7/qt6-switch-demo/patches
+./scripts/apply-qtbase-patches.sh /path/to/qtbase ./patches
 ```
+
+If you use the included submodule, this step is already represented by `third_party/qtbase`.
 
 ## 2. Build Host Tools
 
 The Switch cross-build requires host-side Qt tools first.
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/build-host-qt-tools.sh \
-  /Volumes/T7/sdk/qt6-switch-src/qtbase \
-  /Volumes/T7/sdk/qt6-host-build-linux/qtbase \
-  /Volumes/T7/sdk/qt6-host-build-linux/install
+./scripts/build-host-qt-tools.sh
 ```
 
 ## 3. Configure the Switch Qt Target
@@ -28,13 +25,8 @@ The Switch cross-build requires host-side Qt tools first.
 For the Widgets demo, configure with widgets enabled:
 
 ```bash
-QT_HOST_PATH=/Volumes/T7/sdk/qt6-host-build-linux/qtbase \
-/Volumes/T7/qt6-switch-demo/scripts/configure-qtbase-switch.sh \
-  /Volumes/T7/sdk/qt6-switch-src/qtbase \
-  /Volumes/T7/sdk/qt6-switch-build/qtbase-widgets-test \
-  /Volumes/T7/qt6-switch-demo/extras/toolchain-switch.cmake \
-  /Volumes/T7/sdk/qt6-host-build-linux/qtbase \
-  ON
+QT_HOST_PATH="$(pwd)/build/qtbase-host" \
+./scripts/configure-qtbase-switch.sh
 ```
 
 ## 4. Build the Switch Qt Pieces
@@ -43,10 +35,10 @@ Build inside the devkitPro container:
 
 ```bash
 docker run --rm \
-  -v /Volumes/T7:/Volumes/T7 \
-  -w /Volumes/T7/sdk/qt6-switch-build/qtbase-widgets-test \
+  -v "$(pwd):$(pwd)" \
+  -w "$(pwd)/build/qtbase-switch" \
   devkitpro/devkita64 \
-  bash -lc 'cmake --build /Volumes/T7/sdk/qt6-switch-build/qtbase-widgets-test --parallel 4'
+  bash -lc 'cmake --build "$(pwd)" --parallel 4'
 ```
 
 At minimum, the following outputs should exist:
@@ -61,15 +53,15 @@ At minimum, the following outputs should exist:
 Use the wrapper script:
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/build-widgets-probe.sh
+./scripts/build-widgets-probe.sh
 ```
 
 Or run the container directly:
 
 ```bash
 docker run --rm \
-  -v /Volumes/T7:/Volumes/T7 \
-  -w /Volumes/T7/qt6-switch-demo/demo/widgets-app \
+  -v "$(pwd):$(pwd)" \
+  -w "$(pwd)/demo/widgets-app" \
   devkitpro/devkita64 \
   make clean nro
 ```
@@ -82,14 +74,15 @@ Expected outputs:
 ## 6. Run in Astris
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/run-qt6-switch-widgets-probe-astris.sh
+ASTRIS_APP="/path/to/Astris.app" \
+ASTRIS_DATA="/path/to/astrisData" \
+./scripts/run-qt6-switch-widgets-probe-astris.sh
 ```
 
 ## 7. Upload to Real Hardware Over FTP
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/upload-widgets-probe-ftp.sh \
-  192.168.1.6 5000
+./scripts/upload-widgets-probe-ftp.sh 192.168.1.6 5000
 ```
 
 The current setup uploads:
@@ -97,4 +90,3 @@ The current setup uploads:
 - `/switch/qt6-switch-widgets-probe.nro`
 
 Because the font is now embedded, there is no longer a separate font file to deploy.
-

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-QTBASE_DIR="${1:-/Volumes/T7/sdk/qt6-switch-src/qtbase}"
-PATCH_DIR="${2:-$(cd "$(dirname "$0")/.." && pwd)/patches}"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+QTBASE_DIR="${1:-${REPO_ROOT}/third_party/qtbase}"
+PATCH_DIR="${2:-${REPO_ROOT}/patches}"
 
 if [ ! -d "${QTBASE_DIR}" ]; then
     echo "qtbase directory not found: ${QTBASE_DIR}" >&2
@@ -15,4 +16,3 @@ if [ ! -d "${PATCH_DIR}" ]; then
 fi
 
 git -C "${QTBASE_DIR}" am "${PATCH_DIR}"/000*.patch
-

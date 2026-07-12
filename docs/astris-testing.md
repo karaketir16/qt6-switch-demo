@@ -4,20 +4,18 @@ This document records the emulator workflow that was actually used to validate t
 
 ## Verified Emulator Path
 
-```text
-/Volumes/T7/Applications/Astris/Astris.app
-```
+Set through `ASTRIS_APP`.
 
 ## Verified Data Directory
 
-```text
-/Volumes/T7/astrisData
-```
+Set through `ASTRIS_DATA`.
 
 ## Run Command
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/run-qt6-switch-widgets-probe-astris.sh
+ASTRIS_APP="/path/to/Astris.app" \
+ASTRIS_DATA="/path/to/astrisData" \
+./scripts/run-qt6-switch-widgets-probe-astris.sh
 ```
 
 That script:
@@ -43,7 +41,7 @@ Astris writes Ryujinx logs here:
 The demo writes a guest-side trace file here:
 
 ```text
-/Volumes/T7/astrisData/sdcard/qt6-switch-widgets-probe.log
+$ASTRIS_DATA/sdcard/qt6-switch-widgets-probe.log
 ```
 
 ## What a Good Run Looks Like
@@ -69,7 +67,7 @@ A successful run should show:
 
 Latest local verification screenshot:
 
-- `/Volumes/T7/qt6-switch-demo/verification/astris-widgets-demo-embedded-font.png`
+- `verification/astris-widgets-demo-embedded-font.png`
 
 ## Input Verification
 

@@ -3,8 +3,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NRO_PATH="${1:-${REPO_ROOT}/demo/widgets-app/qt6-switch-widgets-probe.nro}"
-ASTRIS_APP="${ASTRIS_APP:-/Volumes/T7/Applications/Astris/Astris.app}"
-ASTRIS_DATA="${ASTRIS_DATA:-/Volumes/T7/astrisData}"
+ASTRIS_APP="${ASTRIS_APP:-${HOME}/Applications/Astris.app}"
+ASTRIS_DATA="${ASTRIS_DATA:-${HOME}/.astris-data}"
 TARGET_DIR="${ASTRIS_DATA}/homebrew/qt6-switch-widgets-probe"
 LOG_DIR="${HOME}/Library/Containers/V380-Ori.Astris/Data/Library/Logs/Ryujinx"
 GUEST_TRACE="${ASTRIS_DATA}/sdcard/qt6-switch-widgets-probe.log"

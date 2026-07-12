@@ -17,15 +17,15 @@ The demo is intentionally simple and is meant to prove that the current Switch Q
 Use the wrapper script from the repository root:
 
 ```bash
-/Volumes/T7/qt6-switch-demo/scripts/build-widgets-probe.sh
+./scripts/build-widgets-probe.sh
 ```
 
 Or run the container directly:
 
 ```bash
 docker run --rm \
-  -v /Volumes/T7:/Volumes/T7 \
-  -w /Volumes/T7/qt6-switch-demo/demo/widgets-app \
+  -v "$(pwd):$(pwd)" \
+  -w "$(pwd)/demo/widgets-app" \
   devkitpro/devkita64 \
   make clean nro
 ```

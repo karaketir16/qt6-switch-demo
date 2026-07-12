@@ -14,7 +14,7 @@ Current verified state:
 
 Latest local Astris verification artifact:
 
-- `/Volumes/T7/qt6-switch-demo/verification/astris-widgets-demo-embedded-font.png`
+- `verification/astris-widgets-demo-embedded-font.png`
 
 This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
@@ -33,21 +33,25 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
 ## Quick Start
 
-1. Read [downloads.md](/Volumes/T7/qt6-switch-demo/docs/downloads.md).
-2. Prepare the environment from [development-environment.md](/Volumes/T7/qt6-switch-demo/docs/development-environment.md).
-3. Apply the Qt patch series with [apply-qtbase-patches.sh](/Volumes/T7/qt6-switch-demo/scripts/apply-qtbase-patches.sh).
-4. Build host tools and configure Qt as described in [build-and-run.md](/Volumes/T7/qt6-switch-demo/docs/build-and-run.md).
-5. Verify the result in Astris using [astris-testing.md](/Volumes/T7/qt6-switch-demo/docs/astris-testing.md).
+1. Read `docs/downloads.md`.
+2. Prepare the environment from `docs/development-environment.md`.
+3. Initialize the submodule or apply the patch series as described in `docs/build-and-run.md`.
+4. Build host tools and configure Qt as described in `docs/build-and-run.md`.
+5. Verify the result in Astris using `docs/astris-testing.md`.
 
 ## Verified Local Paths Used During Development
 
-These are the local paths that were actually used during bring-up:
+Default repo-relative locations:
 
-- Qt source checkout: `/Volumes/T7/sdk/qt6-switch-src/qtbase`
-- Qt host tools build: `/Volumes/T7/sdk/qt6-host-build-linux/qtbase`
-- Qt Switch target build: `/Volumes/T7/sdk/qt6-switch-build/qtbase-widgets-test`
-- Astris app: `/Volumes/T7/Applications/Astris/Astris.app`
-- Astris data directory: `/Volumes/T7/astrisData`
+- Qt source submodule: `third_party/qtbase`
+- host tools build: `build/qtbase-host`
+- Switch target build: `build/qtbase-switch`
+- verification artifacts: `verification/`
+
+Astris paths are intentionally environment-driven:
+
+- `ASTRIS_APP`
+- `ASTRIS_DATA`
 
 ## Patch Series
 
@@ -58,4 +62,4 @@ The exported patch series in `patches/` currently contains:
 3. `0003-feat-support-qtwidgets-on-switch.patch`
 4. `0004-feat-embed-switch-default-font.patch`
 
-See [what-changed.md](/Volumes/T7/qt6-switch-demo/docs/what-changed.md) for the higher-level summary.
+See `docs/what-changed.md` for the higher-level summary.

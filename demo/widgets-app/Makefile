@@ -9,7 +9,7 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 
-QT_SWITCH_BUILD ?= /Volumes/T7/sdk/qt6-switch-build/qtbase-widgets-test
+QT_SWITCH_BUILD ?= $(abspath $(CURDIR)/../../build/qtbase-switch)
 
 TARGET		:=	qt6-switch-widgets-probe
 BUILD		:=	build

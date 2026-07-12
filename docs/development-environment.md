@@ -4,7 +4,7 @@ This document describes the environment that was used to bring up the demo and w
 
 ## Host Machine
 
-The verified workflow was run from macOS with a writable `/Volumes/T7` external volume used for source checkouts, build directories, emulator data, and helper tools.
+The verified workflow was run from macOS, but the repository is now structured so it does not depend on a machine-specific mount point.
 
 Recommended prerequisites:
 
@@ -16,37 +16,35 @@ Recommended prerequisites:
 
 ## Directory Layout
 
-The following layout was used during development:
+The repository now assumes this internal layout:
 
 ```text
-/Volumes/T7/
-  Applications/
-    Astris/
-      Astris.app
-  astrisData/
-  sdk/
-    qt6-switch-src/
-      qtbase/
-    qt6-host-build-linux/
-      qtbase/
-    qt6-switch-build/
-      qtbase-widgets-test/
-  qt6-switch-demo/
+qt6-switch-demo/
+  third_party/
+    qtbase/
+  build/
+    qtbase-host/
+    qtbase-switch/
+  demo/
+  scripts/
+  docs/
 ```
 
-You can change these paths, but the provided scripts assume this layout by default.
+Astris paths are provided via environment variables instead of hardcoded machine-local paths.
 
 ## Required Tools
 
 ### Qt Base Source Checkout
 
-Clone the official repository:
+You have two options:
+
+1. Use the included git submodule:
 
 ```bash
-git clone https://code.qt.io/qt/qtbase.git /Volumes/T7/sdk/qt6-switch-src/qtbase
-cd /Volumes/T7/sdk/qt6-switch-src/qtbase
-git checkout v6.8.3
+git submodule update --init --recursive
 ```
+
+2. Or clone a separate clean upstream checkout and apply the patch series manually.
 
 ### Docker Container for Switch Cross-Building
 
@@ -58,10 +56,11 @@ docker pull devkitpro/devkita64:latest
 
 ### Astris
 
-Install Astris separately, then make sure the verified app path exists:
+Install Astris separately, then provide the path at runtime:
 
 ```bash
-/Volumes/T7/Applications/Astris/Astris.app
+export ASTRIS_APP="/path/to/Astris.app"
+export ASTRIS_DATA="/path/to/astrisData"
 ```
 
 ### GitHub CLI
@@ -75,4 +74,3 @@ gh auth status
 ## Why the Workflow Uses Docker
 
 The Switch-targeting Qt build was verified inside the `devkitpro/devkita64` container rather than on the host directly. This keeps the Switch toolchain and portlibs consistent and avoids host-specific package drift.
-
