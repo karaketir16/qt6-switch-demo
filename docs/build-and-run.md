@@ -35,15 +35,23 @@ QT_HOST_PATH="$(pwd)/build/qtbase-host" \
 
 ## 4. Build the Switch Qt Pieces
 
-Build inside the devkitPro container:
+Use the wrapper script:
+
+```bash
+./scripts/build-qtbase-switch.sh
+```
+
+Or build only the libraries needed by the demo inside the devkitPro container:
 
 ```bash
 docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/build/qtbase-switch" \
   devkitpro/devkita64 \
-  bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)"'
+  bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Widgets plugins/platforms/libqswitch.a'
 ```
+
+Do not use a plain `cmake --build` here on a fresh tree. That asks Qt to build extra modules such as `QtTest`, and the Switch toolchain does not provide everything those optional pieces expect.
 
 At minimum, the following outputs should exist:
 

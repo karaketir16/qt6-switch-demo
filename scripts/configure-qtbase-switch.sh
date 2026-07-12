@@ -28,6 +28,7 @@ docker run --rm \
             -DBUILD_SHARED_LIBS=OFF \
             -DQT_BUILD_EXAMPLES=OFF \
             -DQT_BUILD_TESTS=OFF \
+            -DQT_FEATURE_testlib=OFF \
             -DQT_FEATURE_dbus=OFF \
             -DQT_FEATURE_gui=ON \
             -DQT_FEATURE_widgets='${QT_FEATURE_WIDGETS_VALUE}'
