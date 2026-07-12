@@ -32,8 +32,13 @@ docker run --rm \
 
 ## Outputs
 
-- `qt6-switch-widgets-probe.elf`
-- `qt6-switch-widgets-probe.nro`
+When built through the repository wrapper script, the output files are written here:
+
+- `demo/widgets-app/qt6-switch-widgets-probe.elf`
+- `demo/widgets-app/qt6-switch-widgets-probe.nro`
+- `demo/widgets-app/qt6-switch-widgets-probe.nacp`
+
+If you `cd demo/widgets-app` and run `make` directly, the same files are written in that current directory.
 
 ## Runtime Notes
 

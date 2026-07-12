@@ -2,6 +2,8 @@
 
 This document covers the full build flow for the submodule-based Qt tree and the demo application.
 
+Unless noted otherwise, run the wrapper scripts from the repository root.
+
 ## 1. Pull the Submodule
 
 After cloning the repository:
@@ -24,6 +26,10 @@ The Switch cross-build requires host-side Qt tools first.
 ./scripts/build-host-qt-tools.sh
 ```
 
+Output directory:
+
+- `build/qtbase-host/`
+
 ## 3. Configure the Switch Qt Target
 
 For the Widgets demo, configure with widgets enabled:
@@ -32,6 +38,10 @@ For the Widgets demo, configure with widgets enabled:
 QT_HOST_PATH="$(pwd)/build/qtbase-host" \
 ./scripts/configure-qtbase-switch.sh
 ```
+
+Configuration output directory:
+
+- `build/qtbase-switch/`
 
 ## 4. Build the Switch Qt Pieces
 
@@ -60,6 +70,10 @@ At minimum, the following outputs should exist:
 - `lib/libQt6Widgets.a`
 - `plugins/platforms/libqswitch.a`
 
+Those files are generated under:
+
+- `build/qtbase-switch/`
+
 ## 5. Build the Demo Application
 
 Use the wrapper script:
@@ -80,8 +94,9 @@ docker run --rm \
 
 Expected outputs:
 
-- `qt6-switch-widgets-probe.elf`
-- `qt6-switch-widgets-probe.nro`
+- `demo/widgets-app/qt6-switch-widgets-probe.elf`
+- `demo/widgets-app/qt6-switch-widgets-probe.nro`
+- `demo/widgets-app/qt6-switch-widgets-probe.nacp`
 
 ## 6. Run in Astris
 

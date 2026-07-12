@@ -30,11 +30,18 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
 ## Quick Start
 
+Run the documented wrapper scripts from the repository root.
+
 1. Read `docs/downloads.md`.
 2. Prepare the environment from `docs/development-environment.md`.
 3. Pull the submodule as described in `docs/build-and-run.md`.
 4. Build host tools and configure Qt as described in `docs/build-and-run.md`.
 5. Verify the result in Astris using `docs/astris-testing.md`.
+
+The demo build output ends up at:
+
+- `demo/widgets-app/qt6-switch-widgets-probe.nro`
+- `demo/widgets-app/qt6-switch-widgets-probe.elf`
 
 ## Qt Base Source
 

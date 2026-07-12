@@ -20,6 +20,7 @@ ASTRIS_DATA="/path/to/astrisData" \
 
 That script:
 
+- reads `demo/widgets-app/qt6-switch-widgets-probe.nro`
 - copies the latest `.nro` into Astris homebrew storage
 - removes the previous guest trace log
 - launches Astris
