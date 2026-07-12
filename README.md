@@ -13,10 +13,6 @@ Current verified state:
 - The demo application runs in Astris.
 - Input works in the Astris demo.
 
-Latest local Astris verification artifact:
-
-- `verification/astris-widgets-demo-embedded-font.png`
-
 This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
 ## Repository Layout
@@ -39,20 +35,6 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 3. Pull the submodule as described in `docs/build-and-run.md`.
 4. Build host tools and configure Qt as described in `docs/build-and-run.md`.
 5. Verify the result in Astris using `docs/astris-testing.md`.
-
-## Verified Local Paths Used During Development
-
-Default repo-relative locations:
-
-- Qt source submodule: `third_party/qtbase`
-- host tools build: `build/qtbase-host`
-- Switch target build: `build/qtbase-switch`
-- verification artifacts: `verification/`
-
-Astris paths are intentionally environment-driven:
-
-- `ASTRIS_APP`
-- `ASTRIS_DATA`
 
 ## Qt Base Source
 
