@@ -83,7 +83,7 @@ A successful run should show:
 
 Latest local verification screenshot:
 
-- `verification/astris-widgets-demo-embedded-font.png`
+- `verification/astris-widgets-demo-menu.png`
 
 ## Input Verification
 

@@ -2,7 +2,7 @@
 
 This repository packages a reproducible Qt 6 Nintendo Switch bring-up demo based on a forked `qtbase` tree, a small Qt Widgets homebrew application, and the scripts and documentation needed to build, test, and run it.
 
-![Astris verification](./verification/astris-widgets-demo-embedded-font.png)
+![Astris verification](./verification/astris-widgets-demo-menu.png)
 
 ## Status
 
