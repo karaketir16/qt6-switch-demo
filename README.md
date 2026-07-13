@@ -2,7 +2,7 @@
 
 This repository packages a reproducible Qt 6 Nintendo Switch bring-up demo based on a forked `qtbase` tree, a small Qt Widgets homebrew application, and the scripts and documentation needed to build, test, and run it.
 
-![Astris verification](./verification/astris-widgets-demo-embedded-font.png)
+![Astris verification](./verification/astris-widgets-demo-menu.png)
 
 ## Status
 
@@ -59,5 +59,7 @@ That submodule points to:
 Astris release page:
 
 - [Astris.Binaries releases](https://github.com/V380-Ori/Astris.Binaries/releases)
+
+Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running the Astris wrapper script to enable `qt6-switch-probe.log` and `qt6-switch-widgets-probe.log`.
 
 See `docs/what-changed.md` for the higher-level summary.

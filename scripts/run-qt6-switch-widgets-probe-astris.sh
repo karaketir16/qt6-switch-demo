@@ -2,9 +2,15 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+if [ -f "${REPO_ROOT}/.env" ]; then
+    set -a
+    . "${REPO_ROOT}/.env"
+    set +a
+fi
+
 NRO_PATH="${1:-${REPO_ROOT}/demo/widgets-app/qt6-switch-widgets-probe.nro}"
-ASTRIS_APP="${ASTRIS_APP:-${HOME}/Applications/Astris.app}"
-ASTRIS_DATA="${ASTRIS_DATA:-${HOME}/.astris-data}"
+ASTRIS_APP="${ASTRIS_APP:-/Volumes/T7/Applications/Astris/Astris.app}"
+ASTRIS_DATA="${ASTRIS_DATA:-/Volumes/T7/astrisData}"
 TARGET_DIR="${ASTRIS_DATA}/homebrew/qt6-switch-widgets-probe"
 LOG_DIR="${HOME}/Library/Containers/V380-Ori.Astris/Data/Library/Logs/Ryujinx"
 GUEST_TRACE="${ASTRIS_DATA}/sdcard/qt6-switch-widgets-probe.log"
@@ -21,6 +27,9 @@ echo "  Astris UI may appear stuck on 'Starting game'."
 echo "  The font is embedded in the Switch plugin."
 echo "  The Ryujinx log and guest trace are the primary signals for startup."
 echo
+
+pkill -x Astris || true
+sleep 1
 
 open -a "${ASTRIS_APP}" "${TARGET_DIR}/qt6-switch-widgets-probe.nro"
 
