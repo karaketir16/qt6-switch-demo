@@ -18,6 +18,15 @@ ASTRIS_DATA="/path/to/astrisData" \
 ./scripts/run-qt6-switch-widgets-probe-astris.sh
 ```
 
+To enable guest-side Switch trace logs for debugging:
+
+```bash
+QT_SWITCH_DEBUG_LOG=1 \
+ASTRIS_APP="/path/to/Astris.app" \
+ASTRIS_DATA="/path/to/astrisData" \
+./scripts/run-qt6-switch-widgets-probe-astris.sh
+```
+
 That script:
 
 - reads `demo/widgets-app/qt6-switch-widgets-probe.nro`
@@ -39,15 +48,21 @@ Astris writes Ryujinx logs here:
 
 ### Guest Trace
 
-The demo writes a guest-side trace file here:
+When `QT_SWITCH_DEBUG_LOG=1` is set, the demo writes a guest-side trace file here:
 
 ```text
 $ASTRIS_DATA/sdcard/qt6-switch-widgets-probe.log
 ```
 
+The Switch Qt platform plugin also writes here when debug logging is enabled:
+
+```text
+$ASTRIS_DATA/sdcard/qt6-switch-probe.log
+```
+
 ## What a Good Run Looks Like
 
-The following signals were observed during successful emulator runs:
+With `QT_SWITCH_DEBUG_LOG=1`, the following signals were observed during successful emulator runs:
 
 - `main: QApplication constructed`
 - `ProbeWidget: showEvent`
