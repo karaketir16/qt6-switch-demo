@@ -368,7 +368,7 @@ Switch QML runtime fixes found during the smoke test:
 - `third_party/qtdeclarative/src/qml/memory/qv4stacklimits.cpp` now uses the current stack marker as the Switch stack base with an 8 MB fallback size. The previous fallback placed the soft limit on the wrong side of the current stack pointer and caused `RangeError: Maximum call stack size exceeded` for `QQmlExpression("1 + 41")`.
 - `third_party/qtdeclarative/src/qml/qml/qqmltypeloader.cpp` has temporary Switch tracing around `QQmlTypeLoader::getType(data, url)` and `doLoad()`.
 - `third_party/qtdeclarative/src/qml/qml/qqmlcomponent.cpp` has temporary Switch tracing around `QQmlComponent::setData()`.
-- `QQmlTypeLoader::doLoad()` uses a Switch-only direct path for synchronous/prefer-synchronous static QML data. The normal `loader.load()` path still blocks before the app event loop starts; a broader `QQmlTypeLoaderThread` single-thread fallback also loaded imports but later crashed during QML binding finalization, so the current direct path is intentionally kept narrow.
+- `QQmlTypeLoader::doLoad()` now uses the normal `loader.load()` path again. The underlying Switch issue was narrowed to synchronous `QQmlThread::internalCallMethodInThread()` delivery during early component loading, so that sync call is executed inline on Switch instead of being posted to a worker event queue that does not reliably wake at that stage.
 - `QQmlTypeLoader::Blob::addLibraryImport()` lets the strongly locked `QML` module perform a real QRC qmldir lookup on Switch. Before that, `QML` used `QmldirCacheOnly`, missed the cache, and failed even though `:/qt-project.org/imports/QML/qmldir` existed.
 - `QQmlComponent` uses a non-`thread_local` `creationDepth` on Switch. The devkitA64 TLS access path crashed during `QQmlComponent::beginCreate()` before object creation.
 - `QUnifiedTimer` and `QAnimationTimer` use non-`thread_local` singleton storage on Switch. This fixes the QML `Timer` path that previously crashed through `QQmlTimer::update()` / `QUnifiedTimer::instance()`.
@@ -474,7 +474,6 @@ Current status:
 
 Next narrow debug gate:
 
-- replace the narrow Switch static-data loader direct path with a real worker-thread/event-dispatcher fix
 - reduce temporary Switch tracing once the port stabilizes
 
 ## Stage 3: Astris Test
