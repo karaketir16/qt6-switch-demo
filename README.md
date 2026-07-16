@@ -19,6 +19,8 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
 - `demo/widgets-app/`
   Qt Widgets demo homebrew app.
+- `demo/webengine-app/`
+  QtWebEngine probe app used by the staged browser port.
 - `scripts/`
   Helper scripts for building host tools, configuring the Switch target, running in Astris, and uploading to real hardware over FTP.
 - `extras/`
@@ -63,3 +65,7 @@ Astris release page:
 Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running the Astris wrapper script to enable `qt6-switch-probe.log` and `qt6-switch-widgets-probe.log`.
 
 See `docs/what-changed.md` for the higher-level summary.
+
+## QtWebEngine Port
+
+The staged QtWebEngine work is tracked in `docs/qtwebengine-port.md`.

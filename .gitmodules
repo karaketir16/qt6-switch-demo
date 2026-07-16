@@ -2,3 +2,15 @@
 	path = third_party/qtbase
 	url = git@github.com:karaketir16/qtbase.git
 	branch = qt6-switch-demo-v6.8.3
+[submodule "third_party/qtwebengine"]
+	path = third_party/qtwebengine
+	url = https://code.qt.io/qt/qtwebengine.git
+	branch = 6.8.3
+[submodule "third_party/qtdeclarative"]
+	path = third_party/qtdeclarative
+	url = https://code.qt.io/qt/qtdeclarative.git
+	branch = 6.8.3
+[submodule "third_party/qtshadertools"]
+	path = third_party/qtshadertools
+	url = https://code.qt.io/qt/qtshadertools.git
+	branch = 6.8.3

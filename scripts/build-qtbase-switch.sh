@@ -8,5 +8,4 @@ docker run --rm \
     -v "${REPO_ROOT}:${REPO_ROOT}" \
     -w "${BUILD_DIR}" \
     devkitpro/devkita64 \
-    bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Widgets plugins/platforms/libqswitch.a'
-
+    bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Network Widgets OpenGL OpenGLWidgets plugins/platforms/libqswitch.a'

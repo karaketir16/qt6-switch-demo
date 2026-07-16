@@ -23,6 +23,7 @@ docker run --rm \
     bash -lc "
         cmake -S '${QTBASE_DIR}' -B '${BUILD_DIR}' -GNinja \
             -DQT_QMAKE_TARGET_MKSPEC=devices/switch-aarch64-libnx-g++ \
+            -DSWITCH=ON \
             -DCMAKE_TOOLCHAIN_FILE='${TOOLCHAIN_FILE}' \
             -DQT_HOST_PATH='${QT_HOST_PATH_VALUE}' \
             -DBUILD_SHARED_LIBS=OFF \

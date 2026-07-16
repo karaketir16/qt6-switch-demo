@@ -8,4 +8,4 @@ docker run --rm \
   -v "${REPO_ROOT}:${REPO_ROOT}" \
   -w "${DEMO_DIR}" \
   devkitpro/devkita64 \
-  bash -lc 'make -j"$(nproc)" clean nro'
+  bash -lc 'make clean && make -j"$(nproc)" nro'

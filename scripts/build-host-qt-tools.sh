@@ -20,15 +20,15 @@ docker run --rm \
             -DQT_BUILD_EXAMPLES=OFF \
             -DQT_BUILD_TESTS=OFF \
             -DQT_FEATURE_dbus=OFF \
-            -DQT_FEATURE_gui=OFF \
             -DQT_FEATURE_network=OFF \
+            -DINPUT_opengl=no \
             -DQT_FEATURE_opengl=OFF \
             -DQT_FEATURE_printsupport=OFF \
             -DQT_FEATURE_sql=OFF \
             -DQT_FEATURE_testlib=OFF \
             -DQT_FEATURE_widgets=OFF \
             -DFEATURE_developer_build=ON &&
-        cmake --build '${BUILD_DIR}' --parallel \"\$(nproc)\" --target host_tools
+        cmake --build '${BUILD_DIR}' --parallel \"\$(nproc)\" --target Gui host_tools
     "
 
 echo
