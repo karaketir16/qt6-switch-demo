@@ -311,7 +311,7 @@ Build fixes found during the smoke test:
 - `scripts/build-widgets-probe.sh` now runs `make clean && make -j"$(nproc)" nro`; the previous single `make clean nro` could return successfully after deleting the build directory without producing a fresh NRO.
 - `demo/quick-app/main.cpp` explicitly sets `QT_QPA_PLATFORM=switch`, matching the working Widgets probe.
 - the Quick probe imports and links the minimal static QML plugins for `QtQml`, `QtQml.Models`, `QtQml.WorkerScript`, and `QtQuick`.
-- the Switch QPA trace is currently unconditional so guest logs are available even when host environment variables do not propagate into the homebrew process.
+- the Switch QPA trace is gated behind `QT_SWITCH_DEBUG_LOG=1`; per-frame present logging is disabled by default because it can destabilize long Astris runs.
 
 Validated build command:
 
@@ -360,8 +360,8 @@ Runtime result on Astris:
 - the probe forces the Qt Quick software scene graph with `QT_QUICK_BACKEND=software` and `QQuickWindow::setSceneGraphBackend("software")`.
 - `QQuickView::sceneGraphInitialized` fires.
 - `QSwitchBackingStore::flush` runs and presents a frame through the Switch framebuffer.
-- QML `Timer` drives a changing `phase` property and a moving color bar.
-- `QQuickView::frameSwapped` fires repeatedly; the latest run logged `frameSwapped 60` and `frameSwapped 120` with framebuffer presents roughly every 16-17 ms.
+- Qt Quick declarative animations drive a changing background color and moving color bar.
+- `QQuickView::frameSwapped` fires repeatedly; the latest stable run logged through `frameSwapped 3960` over roughly 66 seconds, and the Astris HUD reported `FPS 60` / `FIFO 0%`.
 
 Switch QML runtime fixes found during the smoke test:
 
@@ -372,6 +372,7 @@ Switch QML runtime fixes found during the smoke test:
 - `QQmlTypeLoader::Blob::addLibraryImport()` lets the strongly locked `QML` module perform a real QRC qmldir lookup on Switch. Before that, `QML` used `QmldirCacheOnly`, missed the cache, and failed even though `:/qt-project.org/imports/QML/qmldir` existed.
 - `QQmlComponent` uses a non-`thread_local` `creationDepth` on Switch. The devkitA64 TLS access path crashed during `QQmlComponent::beginCreate()` before object creation.
 - `QUnifiedTimer` and `QAnimationTimer` use non-`thread_local` singleton storage on Switch. This fixes the QML `Timer` path that previously crashed through `QQmlTimer::update()` / `QUnifiedTimer::instance()`.
+- per-frame Switch QPA present traces are disabled unless `QT_SWITCH_DEBUG_LOG=1` is set. The earlier unconditional `flush` / `framebufferBegin` / `framebufferEnd` debug strings created hundreds of host log events during animated Quick runs and coincided with Astris/Ryujinx memory-tracking failures.
 - `QSwitchPlatformWindow::setVisible()` no longer calls `QWindowSystemInterface::flushWindowSystemEvents()` inline. With the flush, `QQuickView::show()` did not return; without it, the probe reaches `main: view shown`.
 - `demo/quick-app/main.cpp` sets `QSG_INFO=1`, `QT_QUICK_BACKEND=software`, and `QQuickWindow::setSceneGraphBackend("software")` before creating the app so the Switch test uses the software scene graph rather than an unavailable OpenGL/RHI path.
 - `scripts/run-qt6-switch-quick-probe-astris.sh` and the WebEngine launcher now try to dismiss Astris' macOS restore prompt by clicking `Don’t Reopen` / `Don't Reopen` if that prompt appears. This keeps test runs clean instead of restoring a crashed previous session.
@@ -458,7 +459,7 @@ Pass criteria:
 
 - app launches under Astris
 - text/rectangle scene loads
-- QML `Timer` updates visible state
+- Qt Quick animation updates visible state
 - scene graph initializes
 - Switch backing store flushes to the framebuffer
 - frame-swap signal fires
@@ -468,8 +469,8 @@ Current status:
 
 - QtQuick passes the current animated visual smoke test on Astris using the software scene graph.
 - The runtime reaches QPA + `QGuiApplication` + `QQmlEngine` + V4 expression + QRC QML imports + QtQuick root object creation + `QQuickView::Ready` + `view.show()` + `sceneGraphInitialized` + framebuffer present + `frameSwapped`.
-- QML `Timer`/animation now works after the Switch `QUnifiedTimer` storage fix.
-- Astris/Ryujinx may still terminate a few seconds later with a host-side memory tracking exception; by then the guest trace has already shown repeated QtQuick frame presents.
+- Qt Quick animation now works after the Switch `QUnifiedTimer` storage fix.
+- latest screenshot captured the live Astris window with the QtQuick smoke scene and HUD `FPS 60` / `FIFO 0%` after the QPA trace gating change.
 
 Next narrow debug gate:
 

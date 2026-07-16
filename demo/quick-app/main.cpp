@@ -48,14 +48,13 @@ Rectangle {
     id: root
     width: 1280
     height: 720
-    property int phase: 0
-    color: Qt.hsla((phase % 360) / 360, 0.56, 0.18, 1)
+    color: "#173f35"
 
-    Timer {
-        interval: 16
-        running: true
-        repeat: true
-        onTriggered: root.phase += 1
+    SequentialAnimation on color {
+        loops: Animation.Infinite
+        ColorAnimation { to: "#3f1740"; duration: 900 }
+        ColorAnimation { to: "#17403b"; duration: 900 }
+        ColorAnimation { to: "#173f35"; duration: 900 }
     }
 
     Rectangle {
@@ -71,7 +70,7 @@ Rectangle {
             anchors.centerIn: parent
             width: parent.width - 80
             horizontalAlignment: Text.AlignHCenter
-            text: "QtQuick Switch Smoke Test\nQML Timer phase: " + root.phase + "\nPress B/Escape to quit"
+            text: "QtQuick Switch Smoke Test\nQML animation running\nPress B/Escape to quit"
             color: "#12332b"
             font.pixelSize: 42
             font.bold: true
@@ -80,12 +79,19 @@ Rectangle {
     }
 
     Rectangle {
-        x: 80 + ((root.phase * 7) % 1040)
+        id: marker
+        x: 80
         y: 610
         width: 120
         height: 28
         radius: 14
         color: "#8bd3ff"
+
+        SequentialAnimation on x {
+            loops: Animation.Infinite
+            NumberAnimation { to: 1120; duration: 1800; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 80; duration: 1800; easing.type: Easing.InOutSine }
+        }
     }
 }
 )QML";
