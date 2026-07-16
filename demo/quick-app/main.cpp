@@ -26,6 +26,10 @@ namespace {
 
 void traceProbe(const char *message)
 {
+    static const bool enabled = qEnvironmentVariableIntValue("QT_SWITCH_DEBUG_LOG") != 0;
+    if (!enabled)
+        return;
+
     std::FILE *fp = std::fopen("sdmc:/qt6-switch-quick-probe.log", "a");
     if (fp) {
         std::fprintf(fp, "[quick-probe] %s\n", message);

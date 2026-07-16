@@ -48,10 +48,17 @@ Astris writes Ryujinx logs here:
 
 ### Guest Trace
 
-When `QT_SWITCH_DEBUG_LOG=1` is set, the demo writes a guest-side trace file here:
+When `QT_SWITCH_DEBUG_LOG=1` is set, the widgets demo writes a guest-side trace file here:
 
 ```text
 $ASTRIS_DATA/sdcard/qt6-switch-widgets-probe.log
+```
+
+The Quick and WebEngine probes use matching files when their trace logging is enabled:
+
+```text
+$ASTRIS_DATA/sdcard/qt6-switch-quick-probe.log
+$ASTRIS_DATA/sdcard/qt6-switch-webengine-probe.log
 ```
 
 The Switch Qt platform plugin also writes here when debug logging is enabled:

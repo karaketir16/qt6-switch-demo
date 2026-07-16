@@ -62,7 +62,7 @@ Astris release page:
 
 - [Astris.Binaries releases](https://github.com/V380-Ori/Astris.Binaries/releases)
 
-Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running the Astris wrapper script to enable `qt6-switch-probe.log` and `qt6-switch-widgets-probe.log`.
+Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running an Astris wrapper script to enable probe logs such as `qt6-switch-probe.log`, `qt6-switch-widgets-probe.log`, `qt6-switch-quick-probe.log`, or `qt6-switch-webengine-probe.log`.
 
 See `docs/what-changed.md` for the higher-level summary.
 
