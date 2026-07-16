@@ -1,4 +1,5 @@
 #include <QGuiApplication>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QObject>
 #include <QQmlComponent>
@@ -93,6 +94,17 @@ Rectangle {
             NumberAnimation { to: 80; duration: 1800; easing.type: Easing.InOutSine }
         }
     }
+
+    Text {
+        objectName: "fpsLabel"
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.margins: 28
+        text: "FPS --"
+        color: "#f7c948"
+        font.pixelSize: 34
+        font.bold: true
+    }
 }
 )QML";
 
@@ -180,6 +192,7 @@ int main(int argc, char **argv)
         return 3;
     }
     traceProbe("main: QtQuick root object created");
+    QObject *fpsLabel = rootObject->findChild<QObject *>(QStringLiteral("fpsLabel"));
 
     traceProbe("main: constructing QQuickView");
     QQuickView view(&engine, nullptr);
@@ -197,9 +210,25 @@ int main(int argc, char **argv)
     QObject::connect(&view, &QQuickView::sceneGraphInitialized, &view, [] {
         traceProbe("QQuickView: sceneGraphInitialized");
     });
-    QObject::connect(&view, &QQuickView::frameSwapped, &view, [] {
+    QObject::connect(&view, &QQuickView::frameSwapped, &view, [fpsLabel] {
         static int frameCount = 0;
+        static QElapsedTimer fpsTimer;
+        static int framesSinceUpdate = 0;
+        if (!fpsTimer.isValid())
+            fpsTimer.start();
+
         ++frameCount;
+        ++framesSinceUpdate;
+        if (fpsTimer.elapsed() >= 1000) {
+            const qint64 elapsed = fpsTimer.elapsed();
+            const double fps = framesSinceUpdate * 1000.0 / double(elapsed);
+            if (fpsLabel) {
+                fpsLabel->setProperty("text", QStringLiteral("FPS %1").arg(fps, 0, 'f', 1));
+            }
+            framesSinceUpdate = 0;
+            fpsTimer.restart();
+        }
+
         if ((frameCount % 60) == 0) {
             char buffer[96];
             std::snprintf(buffer, sizeof(buffer), "QQuickView: frameSwapped %d", frameCount);
