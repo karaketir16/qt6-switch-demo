@@ -32,6 +32,7 @@ docker run --rm \
             -DQT_FEATURE_testlib=OFF \
             -DQT_FEATURE_dbus=OFF \
             -DQT_FEATURE_gui=ON \
+            -DQT_FEATURE_localserver=OFF \
             -DQT_FEATURE_widgets='${QT_FEATURE_WIDGETS_VALUE}'
     "
 

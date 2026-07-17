@@ -5,6 +5,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 QTDECLARATIVE_DIR="${1:-${REPO_ROOT}/third_party/qtdeclarative}"
 BUILD_DIR="${2:-${REPO_ROOT}/build/qtdeclarative-host}"
 QT_HOST_PATH_VALUE="${QT_HOST_PATH:-${3:-${REPO_ROOT}/build/qtbase-host}}"
+QTSHADERTOOLS_HOST_BUILD="${QTSHADERTOOLS_HOST_BUILD:-${REPO_ROOT}/build/qtshadertools-host}"
 
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${QT_HOST_PATH_VALUE}/lib/cmake/Qt6"
@@ -23,7 +24,11 @@ docker run --rm \
             -DQT_MKSPECS_DIR='${REPO_ROOT}/third_party/qtbase/mkspecs' \
             -DQt6_DIR='${QT_HOST_PATH_VALUE}/lib/cmake/Qt6' \
             -DQt6Core_DIR='${QT_HOST_PATH_VALUE}/lib/cmake/Qt6Core' \
+            -DQt6ShaderTools_DIR='${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderTools' \
+            -DQt6ShaderToolsTools_DIR='${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools' \
+            -DQT_SWITCH_QTSHADERTOOLS_MACROS='${REPO_ROOT}/third_party/qtshadertools/tools/qsb/Qt6ShaderToolsMacros.cmake' \
             -DQt6BuildInternals_DIR='${QT_HOST_PATH_VALUE}/lib/cmake/Qt6BuildInternals' \
+            -DQT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH='${QTSHADERTOOLS_HOST_BUILD}' \
             -DQT_HOST_PATH='${QT_HOST_PATH_VALUE}' \
             -DQT_BUILD_EXAMPLES=OFF \
             -DQT_BUILD_TESTS=OFF \

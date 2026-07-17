@@ -2,6 +2,12 @@
 
 This document tracks the staged QtWebEngine port attempt for the existing Qt 6 Switch bring-up.
 
+Current status:
+
+- the practical build flow is `QtBase -> Widgets demo` and `QtBase -> QtShaderTools -> QtDeclarative/Quick -> Qt Quick demo`
+- QtWebEngine remains a parked branch of work
+- Chromium/WebEngine is not part of the required build path today
+
 ## Stage 1: Source and Consumer Demo
 
 The repository now carries a `third_party/qtwebengine` submodule on the Qt `6.8.3` branch, matching the `qtbase` baseline.

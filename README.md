@@ -69,3 +69,5 @@ See `docs/what-changed.md` for the higher-level summary.
 ## QtWebEngine Port
 
 The staged QtWebEngine work is tracked in `docs/qtwebengine-port.md`.
+
+It is not part of the active demo CI path. The manual GitHub Actions build intentionally avoids checking out `qtwebengine` and its nested Chromium dependency, because the current validation target is limited to the Qt Widgets and Qt Quick demos.

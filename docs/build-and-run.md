@@ -1,24 +1,49 @@
 # Build and Run
 
-This document covers the full build flow for the submodule-based Qt tree and the demo application.
+This document covers the current working build flow for the submodule-based Qt tree and the Switch demos.
 
 Unless noted otherwise, run the wrapper scripts from the repository root.
 
-## 1. Pull the Submodule
+## 1. Clone With the Patched Submodules
 
-After cloning the repository:
+The repository tracks forked Qt submodules because the current Switch work depends on commits that do not exist in upstream `code.qt.io`.
+
+Fresh clone:
+
+```bash
+git clone --recurse-submodules \
+  -b codex/qtwebengine-port \
+  https://github.com/karaketir16/qt6-switch-demo.git
+```
+
+If the submodules were not initialized during clone:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-To update the submodule later:
+To refresh them later:
 
 ```bash
 git submodule update --remote --recursive
 ```
 
-## 2. Build Host Tools
+The active submodule remotes are expected to be:
+
+- `third_party/qtbase -> https://github.com/karaketir16/qtbase.git`
+- `third_party/qtdeclarative -> https://github.com/karaketir16/qtdeclarative.git`
+- `third_party/qtshadertools -> https://github.com/karaketir16/qtshadertools.git`
+- `third_party/qtwebengine -> https://github.com/karaketir16/qtwebengine.git`
+
+For the currently validated `widgets + quick` flow, only these submodules are required:
+
+- `third_party/qtbase`
+- `third_party/qtdeclarative`
+- `third_party/qtshadertools`
+
+`third_party/qtwebengine` is not needed for the active demo build path. In CI we intentionally do not initialize it, because the QtWebEngine tree carries a nested Chromium submodule and would add a large unnecessary checkout.
+
+## 2. Build Host QtBase Tools
 
 The Switch cross-build requires host-side Qt tools first.
 
@@ -30,9 +55,9 @@ Output directory:
 
 - `build/qtbase-host/`
 
-## 3. Configure the Switch Qt Target
+## 3. Configure and Build the Switch QtBase Target
 
-For the Widgets demo, configure with widgets enabled:
+Configure:
 
 ```bash
 QT_HOST_PATH="$(pwd)/build/qtbase-host" \
@@ -43,9 +68,7 @@ Configuration output directory:
 
 - `build/qtbase-switch/`
 
-## 4. Build the Switch Qt Pieces
-
-Use the wrapper script:
+Build:
 
 ```bash
 ./scripts/build-qtbase-switch.sh
@@ -67,14 +90,17 @@ At minimum, the following outputs should exist:
 
 - `lib/libQt6Core.a`
 - `lib/libQt6Gui.a`
+- `lib/libQt6Network.a`
 - `lib/libQt6Widgets.a`
+- `lib/libQt6OpenGL.a`
+- `lib/libQt6OpenGLWidgets.a`
 - `plugins/platforms/libqswitch.a`
 
 Those files are generated under:
 
 - `build/qtbase-switch/`
 
-## 5. Build the Demo Application
+## 4. Build the Widgets Demo
 
 Use the wrapper script:
 
@@ -98,7 +124,74 @@ Expected outputs:
 - `demo/widgets-app/qt6-switch-widgets-probe.nro`
 - `demo/widgets-app/qt6-switch-widgets-probe.nacp`
 
-## 6. Run in Astris
+## 5. Build the Qt Quick Dependency Chain
+
+Build host `qsb`:
+
+```bash
+QT_HOST_PATH="$(pwd)/build/qtbase-host" \
+./scripts/build-host-qtshadertools-tools.sh
+```
+
+Configure and build Switch QtShaderTools:
+
+```bash
+QT_HOST_PATH="$(pwd)/build/qtbase-host" \
+./scripts/configure-qtshadertools-switch.sh
+
+./scripts/build-qtshadertools-switch.sh
+```
+
+Build host QML tools:
+
+```bash
+QT_HOST_PATH="$(pwd)/build/qtbase-host" \
+./scripts/build-host-qtdeclarative-tools.sh
+```
+
+Configure and build Switch QtDeclarative:
+
+```bash
+QT_HOST_PATH="$(pwd)/build/qtbase-host" \
+./scripts/configure-qtdeclarative-switch.sh
+
+./scripts/build-qtdeclarative-switch.sh
+```
+
+Expected dependency outputs:
+
+- `build/qtshadertools-host/bin/qsb`
+- `build/qtshadertools-switch/lib/libQt6ShaderTools.a`
+- `build/qtdeclarative-switch/lib/libQt6Qml.a`
+- `build/qtdeclarative-switch/lib/libQt6QmlModels.a`
+- `build/qtdeclarative-switch/lib/libQt6Quick.a`
+
+## 6. Build the Qt Quick Demo
+
+```bash
+./scripts/build-quick-probe.sh
+```
+
+Expected outputs:
+
+- `demo/quick-app/qt6-switch-quick-probe.elf`
+- `demo/quick-app/qt6-switch-quick-probe.nro`
+- `demo/quick-app/qt6-switch-quick-probe.nacp`
+
+## 7. Current Scope
+
+The validated path today is:
+
+```text
+QtBase -> Widgets demo
+QtBase -> QtShaderTools -> QtDeclarative/Quick -> Qt Quick demo
+```
+
+`QtWebEngine` remains out of the active build flow for now. The repository still carries that staged work, but the practical build/test path does not require Chromium or WebEngine.
+
+The manual GitHub Actions workflow follows that same scope. It checks out only `qtbase`, `qtdeclarative`, and `qtshadertools`, and it intentionally skips `qtwebengine` and Chromium.
+
+## 8. Run in Astris
 
 ```bash
 ASTRIS_APP="/path/to/Astris.app" \
@@ -106,7 +199,15 @@ ASTRIS_DATA="/path/to/astrisData" \
 ./scripts/run-qt6-switch-widgets-probe-astris.sh
 ```
 
-## 7. Upload to Real Hardware Over FTP
+For the Qt Quick demo:
+
+```bash
+ASTRIS_APP="/path/to/Astris.app" \
+ASTRIS_DATA="/path/to/astrisData" \
+./scripts/run-qt6-switch-quick-probe-astris.sh
+```
+
+## 9. Upload to Real Hardware Over FTP
 
 ```bash
 ./scripts/upload-widgets-probe-ftp.sh 192.168.1.6 5000

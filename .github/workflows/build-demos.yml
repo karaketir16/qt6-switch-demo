@@ -1,0 +1,60 @@
+name: Build demos
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Check out required Qt submodules only
+        run: |
+          git submodule update --init third_party/qtbase third_party/qtdeclarative third_party/qtshadertools
+
+      - name: Show Docker version
+        run: docker --version
+
+      - name: Build host QtBase tools
+        run: ./scripts/build-host-qt-tools.sh
+
+      - name: Configure Switch QtBase
+        run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/configure-qtbase-switch.sh
+
+      - name: Build Switch QtBase
+        run: ./scripts/build-qtbase-switch.sh
+
+      - name: Build widgets demo
+        run: ./scripts/build-widgets-probe.sh
+
+      - name: Build host QtShaderTools tools
+        run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/build-host-qtshadertools-tools.sh
+
+      - name: Configure Switch QtShaderTools
+        run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/configure-qtshadertools-switch.sh
+
+      - name: Build Switch QtShaderTools
+        run: ./scripts/build-qtshadertools-switch.sh
+
+      - name: Build host QtDeclarative tools
+        run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/build-host-qtdeclarative-tools.sh
+
+      - name: Configure Switch QtDeclarative
+        run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/configure-qtdeclarative-switch.sh
+
+      - name: Build Switch QtDeclarative
+        run: ./scripts/build-qtdeclarative-switch.sh
+
+      - name: Build Qt Quick demo
+        run: ./scripts/build-quick-probe.sh
+
+      - name: Verify demo outputs exist
+        run: |
+          test -f demo/widgets-app/qt6-switch-widgets-probe.nro
+          test -f demo/quick-app/qt6-switch-quick-probe.nro
