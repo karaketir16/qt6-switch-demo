@@ -19,16 +19,16 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
 - `demo/widgets-app/`
   Qt Widgets demo homebrew app.
-- `demo/webengine-app/`
-  QtWebEngine probe app used by the staged browser port.
+- `demo/quick-app/`
+  Qt Quick smoke-test homebrew app.
 - `scripts/`
   Helper scripts for building host tools, configuring the Switch target, running in Astris, and uploading to real hardware over FTP.
 - `extras/`
   Supporting files such as the Switch CMake toolchain file.
 - `docs/`
   Detailed setup, build, test, emulator, and change documentation.
-- `third_party/qtbase/`
-  Git submodule pointing at the forked Qt Base repository with the Switch changes.
+- `third_party/qtbase/`, `third_party/qtdeclarative/`, `third_party/qtshadertools/`
+  Git submodules containing the Qt Switch port and the Qt Quick dependency chain.
 
 ## Quick Start
 
@@ -62,12 +62,14 @@ Astris release page:
 
 - [Astris.Binaries releases](https://github.com/V380-Ori/Astris.Binaries/releases)
 
-Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running an Astris wrapper script to enable probe logs such as `qt6-switch-probe.log`, `qt6-switch-widgets-probe.log`, `qt6-switch-quick-probe.log`, or `qt6-switch-webengine-probe.log`.
+Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running an Astris wrapper script to enable probe logs such as `qt6-switch-probe.log`, `qt6-switch-widgets-probe.log`, or `qt6-switch-quick-probe.log`.
 
 See `docs/what-changed.md` for the higher-level summary.
 
-## QtWebEngine Port
+## Qt Quick scope
 
-The staged QtWebEngine work is tracked in `docs/qtwebengine-port.md`.
+The merge target for this branch is the Qt Quick support path:
 
-It is not part of the active demo CI path. The manual GitHub Actions build intentionally avoids checking out `qtwebengine` and its nested Chromium dependency, because the current validation target is limited to the Qt Widgets and Qt Quick demos.
+```text
+QtBase -> QtShaderTools/qsb -> QtDeclarative/QML/QtQuick -> Qt Quick demo
+```

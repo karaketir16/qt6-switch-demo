@@ -23,3 +23,5 @@ docker run --rm \
         QmlModels_resources_1 \
         QmlWorkerScript_resources_1 \
         Quick_resources_1'
+
+"${REPO_ROOT}/scripts/generate-qt-artifacts.sh" "${REPO_ROOT}/build/qtbase-switch" "${BUILD_DIR}"

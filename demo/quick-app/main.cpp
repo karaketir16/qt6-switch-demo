@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QElapsedTimer>
+#include <QEvent>
 #include <QFile>
+#include <QKeyEvent>
 #include <QObject>
 #include <QQmlComponent>
 #include <QQmlEngine>
@@ -26,7 +28,8 @@ namespace {
 
 void traceProbe(const char *message)
 {
-    static const bool enabled = qEnvironmentVariableIntValue("QT_SWITCH_DEBUG_LOG") != 0;
+    static const bool enabled = qEnvironmentVariableIntValue("QT_SWITCH_DEBUG_LOG") != 0
+            || QFile::exists(QStringLiteral("sdmc:/qt6-switch-debug"));
     if (!enabled)
         return;
 
@@ -53,6 +56,9 @@ Rectangle {
     id: root
     width: 1280
     height: 720
+    focus: true
+    property string lastInput: "Last input: none"
+    property int inputCount: 0
     color: "#173f35"
 
     SequentialAnimation on color {
@@ -75,7 +81,7 @@ Rectangle {
             anchors.centerIn: parent
             width: parent.width - 80
             horizontalAlignment: Text.AlignHCenter
-            text: "QtQuick Switch Smoke Test\nQML animation running\nPress B/Escape to quit"
+            text: "QtQuick Switch Smoke Test\nQML animation running\nD-pad: input test   A: Space   B: Escape input"
             color: "#12332b"
             font.pixelSize: 42
             font.bold: true
@@ -109,6 +115,17 @@ Rectangle {
         font.pixelSize: 34
         font.bold: true
     }
+
+    Text {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 28
+        text: root.lastInput + "\nInput events: " + root.inputCount
+        color: "#f7c948"
+        font.pixelSize: 24
+        font.bold: true
+        horizontalAlignment: Text.AlignRight
+    }
 }
 )QML";
 
@@ -121,6 +138,52 @@ QtObject {
 )QML";
 
 } // namespace
+
+class QuickInputFilter final : public QObject
+{
+public:
+    explicit QuickInputFilter(QObject *root, QObject *parent = nullptr)
+        : QObject(parent), m_root(root)
+    {
+    }
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        Q_UNUSED(watched);
+        if (event->type() != QEvent::KeyPress && event->type() != QEvent::KeyRelease)
+            return QObject::eventFilter(watched, event);
+
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
+        QString label;
+        switch (keyEvent->key()) {
+        case Qt::Key_Up: label = QStringLiteral("Up"); break;
+        case Qt::Key_Down: label = QStringLiteral("Down"); break;
+        case Qt::Key_Left: label = QStringLiteral("Left"); break;
+        case Qt::Key_Right: label = QStringLiteral("Right"); break;
+        case Qt::Key_Space: label = QStringLiteral("A / Space"); break;
+        case Qt::Key_Escape: label = QStringLiteral("B / Escape"); break;
+        default: return QObject::eventFilter(watched, event);
+        }
+
+        const bool pressed = event->type() == QEvent::KeyPress;
+        m_root->setProperty("lastInput", QStringLiteral("Last input: %1 %2")
+                .arg(label, pressed ? QStringLiteral("pressed") : QStringLiteral("released")));
+        if (pressed) {
+            const int count = m_root->property("inputCount").toInt();
+            m_root->setProperty("inputCount", count + 1);
+        }
+
+        const QByteArray message = QByteArray("input: ") + label.toUtf8()
+                + (pressed ? " pressed" : " released");
+        traceProbe(message.constData());
+        keyEvent->accept();
+        return true;
+    }
+
+private:
+    QObject *m_root;
+};
 
 int main(int argc, char **argv)
 {
@@ -205,6 +268,8 @@ int main(int argc, char **argv)
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     traceProbe("main: resizing view");
     view.resize(1280, 720);
+    rootObject->setProperty("focus", true);
+    view.installEventFilter(new QuickInputFilter(rootObject, &view));
 
     QObject::connect(&view, &QQuickView::statusChanged, &view, [](QQuickView::Status status) {
         char buffer[96];

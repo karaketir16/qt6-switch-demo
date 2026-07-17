@@ -12,7 +12,7 @@ Fresh clone:
 
 ```bash
 git clone --recurse-submodules \
-  -b codex/qtwebengine-port \
+  -b codex/qtquick-main-ready \
   https://github.com/karaketir16/qt6-switch-demo.git
 ```
 
@@ -33,15 +33,11 @@ The active submodule remotes are expected to be:
 - `third_party/qtbase -> https://github.com/karaketir16/qtbase.git`
 - `third_party/qtdeclarative -> https://github.com/karaketir16/qtdeclarative.git`
 - `third_party/qtshadertools -> https://github.com/karaketir16/qtshadertools.git`
-- `third_party/qtwebengine -> https://github.com/karaketir16/qtwebengine.git`
-
-For the currently validated `widgets + quick` flow, only these submodules are required:
+For the currently validated `widgets + quick` flow, these submodules are required:
 
 - `third_party/qtbase`
 - `third_party/qtdeclarative`
 - `third_party/qtshadertools`
-
-`third_party/qtwebengine` is not needed for the active demo build path. In CI we intentionally do not initialize it, because the QtWebEngine tree carries a nested Chromium submodule and would add a large unnecessary checkout.
 
 ## 2. Build Host QtBase Tools
 
@@ -178,7 +174,7 @@ Expected outputs:
 - `demo/quick-app/qt6-switch-quick-probe.nro`
 - `demo/quick-app/qt6-switch-quick-probe.nacp`
 
-## 7. Current Scope
+## 7. Current Qt Quick Scope
 
 The validated path today is:
 
@@ -187,9 +183,7 @@ QtBase -> Widgets demo
 QtBase -> QtShaderTools -> QtDeclarative/Quick -> Qt Quick demo
 ```
 
-`QtWebEngine` remains out of the active build flow for now. The repository still carries that staged work, but the practical build/test path does not require Chromium or WebEngine.
-
-The manual GitHub Actions workflow follows that same scope. It checks out only `qtbase`, `qtdeclarative`, and `qtshadertools`, and it intentionally skips `qtwebengine` and Chromium.
+The manual GitHub Actions workflow checks out only the three Qt submodules above.
 
 ## 8. Run in Astris
 

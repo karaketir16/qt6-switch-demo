@@ -10,6 +10,8 @@ TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 
 QT_SWITCH_BUILD ?= $(abspath $(CURDIR)/../../build/qtbase-switch)
+QT_ARTIFACTS ?= $(QT_SWITCH_BUILD)/qt-switch-artifacts.mk
+include $(QT_ARTIFACTS)
 
 TARGET		:=	qt6-switch-widgets-probe
 BUILD		:=	build
@@ -28,20 +30,13 @@ QT_CORE		:=	$(QT_SWITCH_BUILD)/lib/libQt6Core.a
 QT_GUI		:=	$(QT_SWITCH_BUILD)/lib/libQt6Gui.a
 QT_WIDGETS	:=	$(QT_SWITCH_BUILD)/lib/libQt6Widgets.a
 QT_PLUGIN	:=	$(QT_SWITCH_BUILD)/plugins/platforms/libqswitch.a
-QT_RSRC_1	:=	$(QT_SWITCH_BUILD)/src/gui/CMakeFiles/Gui_resources_1.dir/.qt/rcc/qrc_qpdf_init.cpp.obj
-QT_RSRC_2	:=	$(QT_SWITCH_BUILD)/src/gui/CMakeFiles/Gui_resources_2.dir/.qt/rcc/qrc_gui_shaders_init.cpp.obj
 
 QT_PUBLIC_INCLUDES := \
 	-I$(QT_SWITCH_BUILD)/include \
 	-I$(QT_SWITCH_BUILD)/include/QtCore \
 	-I$(QT_SWITCH_BUILD)/include/QtGui \
 	-I$(QT_SWITCH_BUILD)/include/QtWidgets \
-	-I$(QT_SWITCH_BUILD)/include/QtCore/6.8.3 \
-	-I$(QT_SWITCH_BUILD)/include/QtCore/6.8.3/QtCore \
-	-I$(QT_SWITCH_BUILD)/include/QtGui/6.8.3 \
-	-I$(QT_SWITCH_BUILD)/include/QtGui/6.8.3/QtGui \
-	-I$(QT_SWITCH_BUILD)/include/QtWidgets/6.8.3 \
-	-I$(QT_SWITCH_BUILD)/include/QtWidgets/6.8.3/QtWidgets
+	-I$(QT_SWITCH_BUILD)/include/QtWidgets
 
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections $(ARCH) $(DEFINES)
 CFLAGS	+=	$(INCLUDE) $(QT_PUBLIC_INCLUDES) -D__SWITCH__
@@ -60,6 +55,7 @@ export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
 export BUILD	:=	$(BUILD)
 export QT_SWITCH_BUILD
+export QT_ARTIFACTS
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir))
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
@@ -90,6 +86,7 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 all: nro
 
 nro: $(BUILD)
+	@test -f "$(QT_ARTIFACTS)" || { echo "Missing $(QT_ARTIFACTS). Run scripts/build-qtbase-switch.sh first."; exit 1; }
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@

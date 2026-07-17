@@ -9,3 +9,5 @@ docker run --rm \
     -w "${BUILD_DIR}" \
     devkitpro/devkita64 \
     bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Network Widgets OpenGL OpenGLWidgets plugins/platforms/libqswitch.a'
+
+"${REPO_ROOT}/scripts/generate-qt-artifacts.sh" "${BUILD_DIR}"

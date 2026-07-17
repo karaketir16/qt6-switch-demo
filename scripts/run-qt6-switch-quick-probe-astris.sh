@@ -14,6 +14,8 @@ ASTRIS_DATA="${ASTRIS_DATA:-/Volumes/T7/astrisData}"
 TARGET_DIR="${ASTRIS_DATA}/homebrew/qt6-switch-quick-probe"
 LOG_DIR="${HOME}/Library/Containers/V380-Ori.Astris/Data/Library/Logs/Ryujinx"
 GUEST_TRACE="${ASTRIS_DATA}/sdcard/qt6-switch-quick-probe.log"
+STARTUP_TRACE="${ASTRIS_DATA}/sdcard/qt6-switch-startup.log"
+DEBUG_MARKER="${ASTRIS_DATA}/sdcard/qt6-switch-debug"
 
 handle_astris_restore_prompt() {
     osascript >/dev/null 2>&1 <<'APPLESCRIPT' || true
@@ -40,6 +42,12 @@ APPLESCRIPT
 mkdir -p "${TARGET_DIR}"
 cp -f "${NRO_PATH}" "${TARGET_DIR}/qt6-switch-quick-probe.nro"
 rm -f "${GUEST_TRACE}"
+rm -f "${STARTUP_TRACE}"
+if [ "${QT_SWITCH_DEBUG_LOG:-0}" = 1 ]; then
+    touch "${DEBUG_MARKER}"
+else
+    rm -f "${DEBUG_MARKER}"
+fi
 
 echo "Launching Astris with:"
 echo "  ${TARGET_DIR}/qt6-switch-quick-probe.nro"

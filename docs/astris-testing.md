@@ -54,11 +54,10 @@ When `QT_SWITCH_DEBUG_LOG=1` is set, the widgets demo writes a guest-side trace 
 $ASTRIS_DATA/sdcard/qt6-switch-widgets-probe.log
 ```
 
-The Quick and WebEngine probes use matching files when their trace logging is enabled:
+The Quick probe writes the following file when trace logging is enabled:
 
 ```text
 $ASTRIS_DATA/sdcard/qt6-switch-quick-probe.log
-$ASTRIS_DATA/sdcard/qt6-switch-webengine-probe.log
 ```
 
 The Switch Qt platform plugin also writes here when debug logging is enabled:
@@ -66,6 +65,16 @@ The Switch Qt platform plugin also writes here when debug logging is enabled:
 ```text
 $ASTRIS_DATA/sdcard/qt6-switch-probe.log
 ```
+
+The Qt libraries use the same runtime toggle. The launcher creates
+`$ASTRIS_DATA/sdcard/qt6-switch-debug` when `QT_SWITCH_DEBUG_LOG=1` is set.
+Remove that marker, or run without the variable, to keep tracing disabled.
+The marker is checked once per process, so changing it takes effect on the
+next launch and does not require rebuilding Qt.
+
+Low-cost startup breadcrumbs are always written to
+`$ASTRIS_DATA/sdcard/qt6-switch-startup.log`; verbose trace output remains
+marker-gated.
 
 ## What a Good Run Looks Like
 
