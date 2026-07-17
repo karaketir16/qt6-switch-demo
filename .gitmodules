@@ -5,8 +5,8 @@
 [submodule "third_party/qtdeclarative"]
 	path = third_party/qtdeclarative
 	url = https://github.com/karaketir16/qtdeclarative.git
-	branch = 6.8.3
+	branch = qt6-switch-demo-v6.8.3
 [submodule "third_party/qtshadertools"]
 	path = third_party/qtshadertools
 	url = https://github.com/karaketir16/qtshadertools.git
-	branch = 6.8.3
+	branch = qt6-switch-demo-v6.8.3
