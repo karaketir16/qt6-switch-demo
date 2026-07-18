@@ -9,6 +9,9 @@ TOOLCHAIN_FILE="${3:-${REPO_ROOT}/extras/toolchain-switch.cmake}"
 QT_HOST_PATH_VALUE="${QT_HOST_PATH:-${4:-${REPO_ROOT}/build/qtbase-host}}"
 QT_FEATURE_WIDGETS_VALUE="${QT_FEATURE_WIDGETS:-${5:-ON}}"
 OPENSSL_ROOT_DIR_VALUE="${OPENSSL_ROOT_DIR:-${REPO_ROOT}/build/openssl-switch/install}"
+QT_BUILD_TESTS_VALUE="${QT_BUILD_TESTS:-OFF}"
+QT_BUILD_TESTS_BATCHED_VALUE="${QT_BUILD_TESTS_BATCHED:-OFF}"
+QT_FEATURE_TESTLIB_VALUE="${QT_FEATURE_TESTLIB:-${QT_BUILD_TESTS_VALUE}}"
 
 if [ -z "${QT_HOST_PATH_VALUE}" ]; then
     echo "QT_HOST_PATH is required for Qt cross compilation." >&2
@@ -35,13 +38,21 @@ docker run --rm \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF \
             -DQT_BUILD_EXAMPLES=OFF \
-            -DQT_BUILD_TESTS=OFF \
-            -DFEATURE_testlib=OFF \
+            -DQT_BUILD_TESTS='${QT_BUILD_TESTS_VALUE}' \
+            -DQT_BUILD_TESTS_BY_DEFAULT='${QT_BUILD_TESTS_VALUE}' \
+            -DQT_BUILD_TESTS_BATCHED='${QT_BUILD_TESTS_BATCHED_VALUE}' \
+            -DFEATURE_testlib='${QT_FEATURE_TESTLIB_VALUE}' \
             -DFEATURE_dbus=OFF \
             -DFEATURE_process=OFF \
             -DFEATURE_systemsemaphore=OFF \
             -DFEATURE_gui=ON \
+            -DFEATURE_opengl=OFF \
+            -DFEATURE_eglfs=OFF \
+            -DFEATURE_linuxfb=OFF \
+            -DFEATURE_minimal=OFF \
+            -DFEATURE_offscreen=OFF \
             -DFEATURE_localserver=OFF \
+            -DFEATURE_printsupport=OFF \
             -DFEATURE_widgets='${QT_FEATURE_WIDGETS_VALUE}' \
             -DINPUT_openssl=linked \
             -DOPENSSL_ROOT_DIR='${OPENSSL_ROOT_DIR_VALUE}' \
