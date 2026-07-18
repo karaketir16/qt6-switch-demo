@@ -2,7 +2,7 @@ diff --git a/providers/implementations/rands/seed_src.c b/providers/implementati
 index 57b5d48cd1..00b97a2111 100644
 --- a/providers/implementations/rands/seed_src.c
 +++ b/providers/implementations/rands/seed_src.c
-@@ -22,4 +22,7 @@
+@@ -22,4 +22,8 @@
  #include "crypto/rand.h"
  #include "crypto/rand_pool.h"
 
@@ -11,7 +11,7 @@ index 57b5d48cd1..00b97a2111 100644
 +#endif
 +
  static OSSL_FUNC_rand_newctx_fn seed_src_new;
-@@ -105,3 +108,9 @@ static int seed_src_generate(void *vseed, unsigned char *out, size_t outlen,
+@@ -105,3 +109,10 @@ static int seed_src_generate(void *vseed, unsigned char *out, size_t outlen,
      }
 
 +#ifdef __SWITCH__
