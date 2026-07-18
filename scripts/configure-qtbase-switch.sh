@@ -7,6 +7,7 @@ BUILD_DIR="${2:-${REPO_ROOT}/build/qtbase-switch}"
 TOOLCHAIN_FILE="${3:-${REPO_ROOT}/extras/toolchain-switch.cmake}"
 QT_HOST_PATH_VALUE="${QT_HOST_PATH:-${4:-${REPO_ROOT}/build/qtbase-host}}"
 QT_FEATURE_WIDGETS_VALUE="${QT_FEATURE_WIDGETS:-${5:-ON}}"
+OPENSSL_ROOT_DIR_VALUE="${OPENSSL_ROOT_DIR:-${REPO_ROOT}/build/openssl-switch/install}"
 
 if [ -z "${QT_HOST_PATH_VALUE}" ]; then
     echo "QT_HOST_PATH is required for Qt cross compilation." >&2
@@ -33,7 +34,12 @@ docker run --rm \
             -DQT_FEATURE_dbus=OFF \
             -DQT_FEATURE_gui=ON \
             -DQT_FEATURE_localserver=OFF \
-            -DQT_FEATURE_widgets='${QT_FEATURE_WIDGETS_VALUE}'
+            -DQT_FEATURE_widgets='${QT_FEATURE_WIDGETS_VALUE}' \
+            -DINPUT_openssl=linked \
+            -DOPENSSL_ROOT_DIR='${OPENSSL_ROOT_DIR_VALUE}' \
+            -DOPENSSL_INCLUDE_DIR='${OPENSSL_ROOT_DIR_VALUE}/include' \
+            -DOPENSSL_SSL_LIBRARY='${OPENSSL_ROOT_DIR_VALUE}/lib/libssl.a' \
+            -DOPENSSL_CRYPTO_LIBRARY='${OPENSSL_ROOT_DIR_VALUE}/lib/libcrypto.a'
     "
 
 echo

@@ -108,3 +108,53 @@ Input was verified in Astris by observing:
 - button press and release behavior
 - `clicked` signal behavior
 - guest trace lines from `ProbeWidget::keyPressEvent`
+
+## Ryubing / Ryujinx: QtNetwork Test
+
+For the network test, launch Ryubing directly rather than through Astris.
+Always stop a previous Ryubing process first; otherwise the new NRO may not be
+loaded and its guest logs can be stale.
+
+```bash
+pkill -f '/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx' || true
+sleep 2
+/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx \
+  /Volumes/T7/qt6-switch-demo/demo/qt-network-test/qt6-switch-network-test.nro \
+  >/tmp/ryubing-network.stdout 2>/tmp/ryubing-network.stderr &
+disown
+sleep 15
+tail -80 /tmp/ryubing-network.stderr
+tail -20 /tmp/ryubing-network.stdout
+ls -lt ~/Library/Logs/Ryujinx | head -3
+```
+
+Ryubing maps `sdmc:/` to:
+
+```text
+~/Library/Application Support/Ryujinx/sdcard/
+```
+
+For the native Qt HTTPS test, place a PEM root bundle at:
+
+```text
+~/Library/Application Support/Ryujinx/sdcard/qt6-switch-ca-bundle.pem
+```
+
+Then inspect these files after the run:
+
+```text
+~/Library/Application Support/Ryujinx/sdcard/qt6-switch-network-test.log
+~/Library/Application Support/Ryujinx/sdcard/qt6-switch-probe.log
+~/Library/Logs/Ryujinx/Ryujinx_*.log
+```
+
+Expected TLS setup evidence in `qt6-switch-probe.log` is:
+
+```text
+[tls-ossl] RAND_status=1
+[tls-ossl] CA bundle path=sdmc:/qt6-switch-ca-bundle.pem exists=1 certificates=<positive count>
+```
+
+Ryubing can still report `Invalid socket descriptor` for Qt TCP/UDP/HTTP(S)
+despite correct TLS initialization and a loaded CA bundle. Treat that as an
+emulator BSD socket-service limitation, not as a native Switch result.

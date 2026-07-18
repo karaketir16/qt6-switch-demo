@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qt 6 Switch Port"
+  short_description: "Build and validate this Qt 6 Switch port"
+  default_prompt: "Use $qt6-switch-port to build, diagnose, or validate the Qt 6 Switch port in this workspace."

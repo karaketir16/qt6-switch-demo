@@ -1,0 +1,24 @@
+diff --git a/providers/implementations/rands/seed_src.c b/providers/implementations/rands/seed_src.c
+index 57b5d48cd1..00b97a2111 100644
+--- a/providers/implementations/rands/seed_src.c
++++ b/providers/implementations/rands/seed_src.c
+@@ -22,4 +22,7 @@
+ #include "crypto/rand.h"
+ #include "crypto/rand_pool.h"
+
++#ifdef __SWITCH__
++# include <switch.h>
++#endif
++
+ static OSSL_FUNC_rand_newctx_fn seed_src_new;
+@@ -105,3 +108,9 @@ static int seed_src_generate(void *vseed, unsigned char *out, size_t outlen,
+     }
+
++#ifdef __SWITCH__
++    // libnx exposes the console CSPRNG through randomGet().  Switch has no
++    // Unix getrandom()/urandom implementation, so use that source directly.
++    randomGet(out, outlen);
++    return 1;
++#endif
++
+     pool = ossl_rand_pool_new(strength, 1, outlen, outlen);
