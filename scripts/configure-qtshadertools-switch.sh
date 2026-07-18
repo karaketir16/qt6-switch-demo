@@ -9,12 +9,12 @@ QT_HOST_PATH_VALUE="${QT_HOST_PATH:-${4:-${REPO_ROOT}/build/qtbase-host}}"
 QT_SWITCH_PREFIX="${QT_SWITCH_PREFIX:-${5:-${REPO_ROOT}/build/qtbase-switch}}"
 QTSHADERTOOLS_HOST_BUILD="${QTSHADERTOOLS_HOST_BUILD:-${REPO_ROOT}/build/qtshadertools-host}"
 QT_CMAKE_OVERLAY_DIR="${QT_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtbase-switch-cmake-overlay}"
+QT_BASE_CMAKE_DIR="${QT_SWITCH_PREFIX}/lib/cmake/Qt6"
 
 mkdir -p "${BUILD_DIR}" "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6"
-if [ ! -f "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in" ]; then
-    cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
-        "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
-fi
+cp -a "${QT_BASE_CMAKE_DIR}/." "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/"
+cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
+    "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
 mkdir -p "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools"
 cat > "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfig.cmake" <<EOF
 set(Qt6ShaderToolsTools_FOUND TRUE)

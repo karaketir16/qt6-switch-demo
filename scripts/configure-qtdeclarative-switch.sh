@@ -11,6 +11,7 @@ QTDECLARATIVE_HOST_BUILD="${QTDECLARATIVE_HOST_BUILD:-${REPO_ROOT}/build/qtdecla
 QTSHADERTOOLS_HOST_BUILD="${QTSHADERTOOLS_HOST_BUILD:-${REPO_ROOT}/build/qtshadertools-host}"
 QTSHADERTOOLS_SWITCH_BUILD="${QTSHADERTOOLS_SWITCH_BUILD:-${REPO_ROOT}/build/qtshadertools-switch}"
 QT_CMAKE_OVERLAY_DIR="${QT_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtbase-switch-cmake-overlay}"
+QT_BASE_CMAKE_DIR="${QT_SWITCH_PREFIX}/lib/cmake/Qt6"
 
 if [ -z "${QT_HOST_PATH_VALUE}" ]; then
     echo "QT_HOST_PATH is required for QtDeclarative cross compilation." >&2
@@ -19,10 +20,9 @@ fi
 
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6"
-if [ ! -f "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in" ]; then
-    cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
-        "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
-fi
+cp -a "${QT_BASE_CMAKE_DIR}/." "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/"
+cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
+    "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
 mkdir -p "${QTDECLARATIVE_HOST_BUILD}/lib/cmake/Qt6QmlTools"
 cat > "${QTDECLARATIVE_HOST_BUILD}/lib/cmake/Qt6QmlTools/Qt6QmlToolsConfig.cmake" <<EOF
 set(Qt6QmlTools_FOUND TRUE)
