@@ -28,6 +28,8 @@ fi
 # Stop only prior instances of this test before starting a new one.
 pkill -f "${NRO_PATH}" || true
 pkill -f "${RYUBING_APP}" || true
+DOTNET_ROOT="${RYUBING_DOTNET_ROOT:-}" \
+DOTNET_ROOT_ARM64="${RYUBING_DOTNET_ROOT:-}" \
 "${RYUBING_APP}" "${NRO_PATH}" >/tmp/ryubing-network.stdout 2>/tmp/ryubing-network.stderr &
 for _ in $(seq 1 40); do
     [ -f "${GUEST_TRACE}" ] && grep -q '^network-test: ' "${GUEST_TRACE}" && break

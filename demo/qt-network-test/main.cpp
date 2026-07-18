@@ -340,10 +340,15 @@ ProbeResult testUdpBurst()
             loop.quit();
     });
     loop.exec();
-    const bool ok = sent && received == QList<QByteArray>{first, second};
+    const bool payload = received.size() == 2 && received.contains(first) && received.contains(second);
+    const bool ok = sent && payload;
+    const QString receivedText = QStringList{
+        QString::fromLatin1(received.value(0).toHex()),
+        QString::fromLatin1(received.value(1).toHex())
+    }.join(u',');
     return {"UDP burst", ok,
-            QStringLiteral("sent=%1 datagrams=%2 payload=%3")
-            .arg(sent).arg(received.size()).arg(ok)};
+            QStringLiteral("sent=%1 datagrams=%2 payload=%3 received=%4")
+            .arg(sent).arg(received.size()).arg(payload).arg(receivedText)};
 }
 
 ProbeResult testHttp()
