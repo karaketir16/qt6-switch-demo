@@ -112,8 +112,8 @@ Input was verified in Astris by observing:
 ## Ryubing / Ryujinx: QtNetwork Test
 
 For the network test, use the direct Ryubing runner rather than Astris. It
-stops a prior Ryubing process, stages the CA bundle, waits for the final test
-summary, and returns non-zero for a failed probe.
+stops a prior Ryubing process, enables the Qt `select` socket-wait fallback,
+waits for the final test summary, and returns non-zero for a failed probe.
 
 ```bash
 ./scripts/run-qt-network-test-ryubing.sh
@@ -123,12 +123,6 @@ Ryubing maps `sdmc:/` to:
 
 ```text
 ~/Library/Application Support/Ryujinx/sdcard/
-```
-
-For the native Qt HTTPS test, place a PEM root bundle at:
-
-```text
-~/Library/Application Support/Ryujinx/sdcard/qt6-switch-ca-bundle.pem
 ```
 
 Then inspect these files after the run:
@@ -143,9 +137,9 @@ Expected TLS setup evidence in `qt6-switch-probe.log` is:
 
 ```text
 [tls-ossl] RAND_status=1
-[tls-ossl] CA bundle path=sdmc:/qt6-switch-ca-bundle.pem exists=1 certificates=<positive count>
+PASS Qt Google HTTPS ... embeddedCa=<positive count> ... error=none
 ```
 
-Ryubing can still report `Invalid socket descriptor` for Qt TCP/UDP/HTTP(S)
-despite correct TLS initialization and a loaded CA bundle. Treat that as an
-emulator BSD socket-service limitation, not as a native Switch result.
+The `sdmc:/qt6-switch-emulator` marker selects Qt's `select` socket-wait
+fallback. For an opt-in real-device test, create `sdmc:/qt6-switch-use-select`;
+normal hardware keeps `poll` by default.

@@ -7,6 +7,7 @@
 #include <QNetworkInterface>
 #include <QNetworkProxy>
 #include <QHostAddress>
+#include <QSslCertificate>
 #include <QSslConfiguration>
 #include <QSslSocket>
 #include <QLabel>
@@ -430,6 +431,11 @@ ProbeResult testQtGoogleHttps()
     addSwitchEntropy("before-qnam-https");
 #endif
     const bool sslSupported = QSslSocket::supportsSsl();
+    const QList<QSslCertificate> embeddedCaCertificates = QSslCertificate::fromPath(
+            QStringLiteral(":/qt-switch/mozilla-ca-bundle.pem"), QSsl::Pem);
+    QSslConfiguration configuration = QSslConfiguration::defaultConfiguration();
+    configuration.setCaCertificates(embeddedCaCertificates);
+    QSslConfiguration::setDefaultConfiguration(configuration);
     const qsizetype systemCaCertificates = QSslConfiguration::systemCaCertificates().size();
     const qsizetype defaultCaCertificates = QSslConfiguration::defaultConfiguration()
             .caCertificates().size();
@@ -441,15 +447,16 @@ ProbeResult testQtGoogleHttps()
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    const bool ok = reply->isFinished() && reply->error() == QNetworkReply::NoError
+    const bool ok = !embeddedCaCertificates.isEmpty() && reply->isFinished()
+            && reply->error() == QNetworkReply::NoError
             && (status == 204 || status == 200);
     const QString error = ok ? QStringLiteral("none")
             : (reply->isFinished() ? reply->errorString() : QStringLiteral("timeout"));
     reply->deleteLater();
     return {"Qt Google HTTPS", ok,
-            QStringLiteral("finished=%1 status=%2 error=%3 sslSupported=%4 systemCa=%5 defaultCa=%6 version=%7 cryptoInit=%8 sslInit=%9 provider=%10 seedSource=%11 rand=%12 randBytes=%13 backend=QtOpenSSL")
+            QStringLiteral("finished=%1 status=%2 error=%3 sslSupported=%4 embeddedCa=%5 systemCa=%6 defaultCa=%7 version=%8 cryptoInit=%9 sslInit=%10 provider=%11 seedSource=%12 rand=%13 randBytes=%14 backend=QtOpenSSL")
             .arg(reply->isFinished()).arg(status).arg(error).arg(sslSupported)
-            .arg(systemCaCertificates).arg(defaultCaCertificates)
+            .arg(embeddedCaCertificates.size()).arg(systemCaCertificates).arg(defaultCaCertificates)
             .arg(QSslSocket::sslLibraryVersionString()).arg(gOpenSslCryptoInit)
             .arg(gOpenSslSslInit).arg(gOpenSslDefaultProvider).arg(gOpenSslSeedSource)
             .arg(gOpenSslRandStatus).arg(gOpenSslRandBytes)};
@@ -539,6 +546,7 @@ int main(int argc, char **argv)
     qputenv("QT_QPA_PLATFORM", "switch");
     qputenv("QT_LOGGING_RULES", "qt.network.ssl.debug=true;qt.tlsbackend.ossl.debug=true");
     QApplication app(argc, argv);
+    Q_INIT_RESOURCE(network_test);
     NetworkWindow window;
     const bool batch = app.arguments().contains(QStringLiteral("--batch"));
     window.show();

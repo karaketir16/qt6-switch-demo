@@ -5,6 +5,7 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 QT_SWITCH_BUILD ?= $(abspath $(TOPDIR)/../../build/qtbase-switch)
+QT_HOST_BUILD ?= $(abspath $(TOPDIR)/../../build/qtbase-host)
 OPENSSL_SWITCH_BUILD ?= $(abspath $(TOPDIR)/../../build/openssl-switch/install)
 
 TARGET := qt6-switch-network-test
@@ -34,11 +35,11 @@ LIBDIRS := $(PORTLIBS) $(LIBNX)
 
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 export OUTPUT := $(CURDIR)/$(TARGET)
-export TOPDIR BUILD QT_SWITCH_BUILD
+export TOPDIR BUILD QT_SWITCH_BUILD QT_HOST_BUILD
 export VPATH := $(CURDIR)
 export DEPSDIR := $(CURDIR)/$(BUILD)
 export LD := $(CXX)
-export OFILES := main.o
+export OFILES := main.o qrc_network_test.o
 export INCLUDE := -I$(CURDIR)/$(BUILD) -I$(CURDIR) $(QT_INCLUDES) $(foreach dir,$(LIBDIRS),-I$(dir)/include)
 export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 export APP_ICON := $(ICON)
@@ -56,5 +57,7 @@ all: $(OUTPUT).nro
 $(OUTPUT).nro: $(OUTPUT).elf $(TOPDIR)/$(TARGET).nacp
 $(OUTPUT).elf: $(OFILES)
 	@$(LD) $(LDFLAGS) -o $@ $^ $(LIBPATHS) $(LIBS)
+qrc_network_test.cpp: $(TOPDIR)/network-test.qrc $(TOPDIR)/assets/mozilla-ca-bundle.pem
+	@$(QT_HOST_BUILD)/libexec/rcc -name network_test $(TOPDIR)/network-test.qrc -o $@
 -include $(OFILES:.o=.d)
 endif

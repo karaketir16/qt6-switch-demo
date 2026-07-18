@@ -40,7 +40,7 @@ Read `references/network-tls.md` before altering QtNetwork, OpenSSL, the network
 
 Do not remove `patches/openssl-3.0.16-switch-rng.patch`: it connects OpenSSL 3's provider `SEED-SRC` to libnx `randomGet()` and is required for general Qt OpenSSL safety. Application `RAND_add()` is diagnostic/defensive only, not a port-wide entropy solution.
 
-Keep certificate verification enabled. Native Qt public HTTPS requires a PEM root bundle at `sdmc:/qt6-switch-ca-bundle.pem`; it is intentionally SD-deployed so roots can be updated without rebuilding apps.
+Keep certificate verification enabled. Generic native Qt public HTTPS can load a PEM root bundle from `sdmc:/qt6-switch-ca-bundle.pem`. The standalone network test instead embeds a Mozilla CA bundle so its emulator test is self-contained; update it intentionally from the documented source and never embed a private key.
 
 ## Validation hierarchy
 

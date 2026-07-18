@@ -10,8 +10,9 @@ success and HTTP 404 handling through `QNetworkAccessManager`, and
 manager/thread construction. It also requires live `www.google.com` DNS and
 HTTPS access as separate mandatory checks. Google HTTPS is tested both through
 the Switch portlib `libcurl` mbedTLS backend and native Qt OpenSSL
-`QNetworkAccessManager`. Native HTTPS requires an updateable PEM root bundle
-at `sdmc:/qt6-switch-ca-bundle.pem`; certificate verification remains enabled.
+`QNetworkAccessManager`. Native HTTPS uses an embedded Mozilla CA bundle;
+certificate verification remains enabled. Its source, license and update
+checksum are in `assets/README.md`.
 The local checks are otherwise offline-safe.
 
 Build and run:
@@ -26,7 +27,7 @@ The result is printed to stdout and appended on hardware to
 fails. Emulator socket-service limitations should be treated separately from
 the real Switch result.
 
-The Ryubing runner waits for the final summary, then exits non-zero if any
-probe failed. It stages the CA bundle and writes host output to
+The Ryubing runner enables the emulator's Qt `select` socket-wait fallback,
+waits for the final summary, then exits non-zero if any probe failed. It writes host output to
 `/tmp/ryubing-network.stdout` and `/tmp/ryubing-network.stderr`; see
 `docs/astris-testing.md` for the SD-card mapping and TLS log locations.

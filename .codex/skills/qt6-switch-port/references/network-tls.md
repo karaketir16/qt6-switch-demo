@@ -25,7 +25,7 @@ Healthy real hardware shows all of:
 RAND_status=1
 rng ... RAND_bytes=1
 seed-src randomGet outlen=...
-CA bundle path=sdmc:/qt6-switch-ca-bundle.pem exists=1 certificates=<positive count>
+PASS Qt Google HTTPS ... embeddedCa=<positive count> ... error=none
 PASS Qt Google HTTPS ... status=204 error=none
 ```
 
@@ -37,14 +37,14 @@ The Google target is `https://www.google.com/generate_204`. The test separately 
 | --- | --- | --- |
 | `error retrieving entropy`, DRBG errors, `RAND_status=0` | OpenSSL provider cannot seed | Verify the OpenSSL RNG patch is in the actual built source/install; inspect seed-source log. |
 | `SSL_CTX_new failed` | Context creation failed, often provider/RNG initialization | Inspect OpenSSL error queue, RAND/DRBG logs, symbols, and provider load result. |
-| `issuer certificate ... could not be found` | TLS reached certificate verification but no trusted root is loaded | Deploy `qt6-switch-ca-bundle.pem` to SD root and verify positive certificate count. |
+| `issuer certificate ... could not be found` | TLS reached certificate verification but no trusted root is loaded | For the network test, verify its embedded Mozilla bundle has a positive certificate count; generic apps can deploy `qt6-switch-ca-bundle.pem` to SD root. |
 | Ryubing `Invalid socket descriptor` | Emulator BSD service limitation | Confirm setup logs, then test physical hardware. |
 
 ## Emulator operation
 
 Ryubing binary: `/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx`.
 
-Ryubing maps `sdmc:/` to `~/Library/Application Support/Ryujinx/sdcard/`. Use `scripts/run-qt-network-test-ryubing.sh` to stage the bundle and debug markers, clean-start the emulator, and wait for the completed test log. Starting via `open` can leave stale guest logs or fail to load the requested NRO.
+Ryubing maps `sdmc:/` to `~/Library/Application Support/Ryujinx/sdcard/`. Use `scripts/run-qt-network-test-ryubing.sh` to create its emulator/debug markers, clean-start the emulator, and wait for the completed test log. The emulator marker opts into Qt's `select` socket-wait fallback; hardware keeps `poll` unless `sdmc:/qt6-switch-use-select` is created. Starting via `open` can leave stale guest logs or fail to load the requested NRO.
 
 ## Real hardware evidence
 
