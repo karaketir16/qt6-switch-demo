@@ -46,8 +46,8 @@ paths; it does **not** claim that every API in a `Supported` module is complete.
 | QtSql | Not tested | No Switch database driver or application probe. | Start with SQLite only if a product requirement exists. |
 | QtQuickControls2 | Not tested | No Controls2 runtime probe on Switch. | Add it after basic Quick and text/input behavior is stable. |
 | QtQuickLayouts | Not tested | No dedicated Layouts runtime probe. | Add a small QML layout test if Controls2 is needed. |
-| QtTest | Build validated / runner pending | QtTest now builds as `libQt6Test.a` after disabling its unsupported Switch crash-handler path; the Switch probe also has a `--batch` exit-status mode. | Expose a host `moc` tool and build a minimal on-device QtTest runner. |
-| QtQuickTest | Missing for Switch runtime | No QML test runner is available on Switch. | Revisit after QtTest and QML deployment are reliable. |
+| QtTest | Missing for Switch runtime | No supported Switch QtTest runner or validated `Qt6Test` build is tracked in this repository. | Revisit only when a real runner and host-tool flow are in place. |
+| QtQuickTest | Missing for Switch runtime | No QML test runner is available on Switch. | Revisit after QML deployment is reliable. |
 | QtDBus | Missing | D-Bus is disabled and has no Switch service equivalent. | Low priority unless a specific service integration is required. |
 | QtPrintSupport | Missing | No printer/system print backend. | Not relevant for the current console target unless requirements change. |
 | QtBluetooth | Missing | No Switch Bluetooth backend. | Requires a product-specific libnx/system integration. |
@@ -74,7 +74,7 @@ paths; it does **not** claim that every API in a `Supported` module is complete.
 
 1. **QtNetwork compatibility** — expand the standalone offline-safe DNS, TCP,
    UDP and HTTP smoke tests beyond the current basic hardware pass.
-2. **QtTest/QtQuickTest strategy** — make repeatable tests possible instead of
+2. **Repeatable test strategy** — add a supported automated harness instead of
    relying only on visual probes.
 3. **Qt Quick GPU backend** — replace the software-only path and measure frame
    time, memory, and shader compatibility.

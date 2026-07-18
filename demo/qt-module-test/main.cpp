@@ -1,7 +1,5 @@
 #include <QApplication>
 #include <QByteArray>
-#include <QElapsedTimer>
-#include <QFile>
 #include <QImage>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -77,10 +75,8 @@ public:
         m_timerStatus->setStyleSheet(QStringLiteral("font-size: 19px; color: #8bd3ff;"));
         layout->addWidget(m_timerStatus);
         m_timer->start();
-
     }
 
-public:
     bool runTests()
     {
         QList<Result> results;
