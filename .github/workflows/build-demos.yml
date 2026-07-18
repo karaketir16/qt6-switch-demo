@@ -1,9 +1,8 @@
 name: Build demos
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  # Deliberately manual: this full cross-build is expensive and must not run
+  # automatically for pushes or pull requests.
   workflow_dispatch:
 
 jobs:

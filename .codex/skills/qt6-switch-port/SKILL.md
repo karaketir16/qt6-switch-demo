@@ -16,6 +16,7 @@ Work from the repository root. Preserve unrelated dirty-worktree changes.
 ## Build and change workflow
 
 - Use the existing `scripts/build-*.sh` and `scripts/configure-*.sh`; they encapsulate the Docker/devkitA64 toolchain.
+- Keep `.github/workflows/build-demos.yml` manual-only. Its full cross-build is intentionally triggered with `workflow_dispatch`, not automatically by pushes or pull requests.
 - When changing Qt source in `third_party/qtbase`, rebuild the affected static target before rebuilding the NRO. Rebuilding only the demo does not absorb Qt library changes.
 - Keep Switch-specific code behind `Q_OS_SWITCH` or `__SWITCH__`; retain the upstream behavior for other platforms.
 - Prefer a small upstream-style platform implementation over an application-only workaround when the defect affects Qt generally.

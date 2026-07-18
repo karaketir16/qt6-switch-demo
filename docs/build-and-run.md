@@ -190,6 +190,11 @@ GitHub Actions checks out the three Qt submodules above plus the pinned Ryubing
 submodule. QtDeclarative's nested `test262` testsuite is intentionally omitted
 because the workflow builds products but does not run Qt's upstream test suite.
 
+The `Build demos` workflow is intentionally manual-only because it performs the
+full host-tool, cross-build, demo, and emulator build chain. It does not run on
+pushes or pull requests. Start it explicitly from GitHub Actions with **Run
+workflow** when a complete remote build is needed.
+
 ## 8. Build the pinned Ryubing source
 
 ```bash
