@@ -201,7 +201,30 @@ ASTRIS_DATA="/path/to/astrisData" \
 ./scripts/run-qt6-switch-quick-probe-astris.sh
 ```
 
-## 9. Upload to Real Hardware Over FTP
+## 9. Run the Qt Module Test
+
+Build the compact module smoke-test application:
+
+```bash
+./scripts/build-qt-module-test.sh
+```
+
+Expected output:
+
+- `demo/qt-module-test/qt6-switch-module-test.elf`
+- `demo/qt-module-test/qt6-switch-module-test.nro`
+
+Run it in Astris:
+
+```bash
+./scripts/run-qt6-switch-module-test-astris.sh
+```
+
+The application tests QtCore, QtThreads, QtGui and QtWidgets/QPA on-screen.
+QtNetwork has its own standalone probe so module-test failures remain isolated;
+see `demo/qt-network-test/README.md`.
+
+## 10. Upload to Real Hardware Over FTP
 
 ```bash
 ./scripts/upload-widgets-probe-ftp.sh 192.168.1.6 5000
