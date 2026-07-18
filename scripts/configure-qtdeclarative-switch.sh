@@ -12,6 +12,7 @@ QTSHADERTOOLS_HOST_BUILD="${QTSHADERTOOLS_HOST_BUILD:-${REPO_ROOT}/build/qtshade
 QTSHADERTOOLS_SWITCH_BUILD="${QTSHADERTOOLS_SWITCH_BUILD:-${REPO_ROOT}/build/qtshadertools-switch}"
 QT_CMAKE_OVERLAY_DIR="${QT_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtbase-switch-cmake-overlay}"
 QT_BASE_CMAKE_DIR="${QT_SWITCH_PREFIX}/lib/cmake/Qt6"
+QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR="${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtshadertools-host-cmake-overlay}"
 
 if [ -z "${QT_HOST_PATH_VALUE}" ]; then
     echo "QT_HOST_PATH is required for QtDeclarative cross compilation." >&2
@@ -55,8 +56,8 @@ set(PACKAGE_VERSION "6.8.3")
 set(PACKAGE_VERSION_COMPATIBLE TRUE)
 set(PACKAGE_VERSION_EXACT TRUE)
 EOF
-mkdir -p "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools"
-cat > "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfig.cmake" <<EOF
+mkdir -p "${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools"
+cat > "${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfig.cmake" <<EOF
 set(Qt6ShaderToolsTools_FOUND TRUE)
 if(NOT TARGET Qt6::qsb)
     if(EXISTS "${QTSHADERTOOLS_HOST_BUILD}/bin/qsb")
@@ -71,7 +72,7 @@ if(NOT TARGET Qt::qsb AND TARGET Qt6::qsb)
     set_target_properties(Qt::qsb PROPERTIES IMPORTED_LOCATION "\${_qt_qsb_location}")
 endif()
 EOF
-cat > "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfigVersion.cmake" <<EOF
+cat > "${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfigVersion.cmake" <<EOF
 set(PACKAGE_VERSION "6.8.3")
 set(PACKAGE_VERSION_COMPATIBLE TRUE)
 set(PACKAGE_VERSION_EXACT TRUE)
@@ -99,12 +100,12 @@ docker run --rm \
             -DQt6BundledGlslang_Glslang_DIR='${QTSHADERTOOLS_SWITCH_BUILD}/lib/cmake/Qt6BundledGlslang_Glslang' \
             -DQt6BundledGlslang_Osdependent_DIR='${QTSHADERTOOLS_SWITCH_BUILD}/lib/cmake/Qt6BundledGlslang_Osdependent' \
             -DQt6BundledGlslang_Spirv_DIR='${QTSHADERTOOLS_SWITCH_BUILD}/lib/cmake/Qt6BundledGlslang_Spirv' \
-            -DQt6ShaderToolsTools_DIR='${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools' \
+            -DQt6ShaderToolsTools_DIR='${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools' \
             -DQT_SWITCH_QTSHADERTOOLS_MACROS='${REPO_ROOT}/third_party/qtshadertools/tools/qsb/Qt6ShaderToolsMacros.cmake' \
             -DQt6QmlTools_DIR='${QTDECLARATIVE_HOST_BUILD}/lib/cmake/Qt6QmlTools' \
             -DQt6QmlCompilerPlusPrivate_DIR='${QTDECLARATIVE_HOST_BUILD}/lib/cmake/Qt6QmlCompilerPlusPrivate' \
             -DQT_ADDITIONAL_PACKAGES_PREFIX_PATH='${QTSHADERTOOLS_SWITCH_BUILD}' \
-            -DQT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH='${QTDECLARATIVE_HOST_BUILD};${QTSHADERTOOLS_HOST_BUILD}' \
+            -DQT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH='${QTDECLARATIVE_HOST_BUILD};${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR};${QTSHADERTOOLS_HOST_BUILD}' \
             -DQT_HOST_PATH='${QT_HOST_PATH_VALUE}' \
             -DQT_SKIP_AUTO_PLUGIN_INCLUSION=ON \
             -DQT_FEATURE_qml_network=OFF \
