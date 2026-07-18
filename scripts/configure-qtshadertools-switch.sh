@@ -8,11 +8,12 @@ TOOLCHAIN_FILE="${3:-${REPO_ROOT}/extras/toolchain-switch.cmake}"
 QT_HOST_PATH_VALUE="${QT_HOST_PATH:-${4:-${REPO_ROOT}/build/qtbase-host}}"
 QT_SWITCH_PREFIX="${QT_SWITCH_PREFIX:-${5:-${REPO_ROOT}/build/qtbase-switch}}"
 QTSHADERTOOLS_HOST_BUILD="${QTSHADERTOOLS_HOST_BUILD:-${REPO_ROOT}/build/qtshadertools-host}"
+QT_CMAKE_OVERLAY_DIR="${QT_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtbase-switch-cmake-overlay}"
 
-mkdir -p "${BUILD_DIR}" "${QT_SWITCH_PREFIX}/lib/cmake/Qt6"
-if [ ! -f "${QT_SWITCH_PREFIX}/lib/cmake/Qt6/QtFileConfigure.txt.in" ]; then
+mkdir -p "${BUILD_DIR}" "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6"
+if [ ! -f "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in" ]; then
     cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
-        "${QT_SWITCH_PREFIX}/lib/cmake/Qt6/QtFileConfigure.txt.in"
+        "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
 fi
 mkdir -p "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools"
 cat > "${QTSHADERTOOLS_HOST_BUILD}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfig.cmake" <<EOF
@@ -51,7 +52,7 @@ docker run --rm \
             -DQT_MKSPECS_DIR='${REPO_ROOT}/third_party/qtbase/mkspecs' \
             -DCMAKE_TOOLCHAIN_FILE='${TOOLCHAIN_FILE}' \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE:STRING=BOTH \
-            -DQt6_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6' \
+            -DQt6_DIR='${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6' \
             -DQt6Core_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Core' \
             -DQt6Gui_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Gui' \
             -DQt6BuildInternals_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6BuildInternals' \
