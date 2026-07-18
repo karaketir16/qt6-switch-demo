@@ -60,9 +60,11 @@ output or the applied submodule worktree.
 ## Verification
 
 The patch was compiled with .NET SDK 10.0.301 on macOS arm64; the solution
-completed with zero errors and zero warnings. Run the Qt network NRO in the
-patched build of Ryubing and confirm that the UDP checks no longer log
-`ServiceBsd SendMMsg: Unsupported BsdMMsgHdr`.
+completed with zero errors and zero warnings. A runtime test confirmed that
+the `ServiceBsd SendMMsg: Unsupported BsdMMsgHdr` rejection is gone. It then
+failed in Ryubing's host `SendTo` path with `ENOMEM`, so the guest network test
+does not yet complete. Investigate that separate host-socket error before
+claiming UDP support.
 
 ## Licensing and repository boundaries
 
