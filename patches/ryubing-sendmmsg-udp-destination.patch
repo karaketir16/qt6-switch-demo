@@ -1,0 +1,93 @@
+diff --git a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs
+index 0624fcf91..9bd4a36fd 100644
+--- a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs
++++ b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs
+@@ -491,6 +491,43 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+             return true;
+         }
+ 
++        private static bool CanSendMMsgHdr(BsdMMsgHdr message)
++        {
++            foreach (BsdMsgHdr msgHeader in message.Messages)
++            {
++                if (msgHeader.Control != null)
++                {
++                    return false;
++                }
++            }
++
++            return true;
++        }
++
++        private static byte[] GetMessageBuffer(BsdMsgHdr message)
++        {
++            int length = 0;
++
++            foreach (byte[] iov in message.Iov)
++            {
++                length += iov?.Length ?? 0;
++            }
++
++            byte[] buffer = new byte[length];
++            int offset = 0;
++
++            foreach (byte[] iov in message.Iov)
++            {
++                if (iov != null)
++                {
++                    iov.CopyTo(buffer, offset);
++                    offset += iov.Length;
++                }
++            }
++
++            return buffer;
++        }
++
+         private static ArraySegment<byte>[] ConvertMessagesToBuffer(BsdMMsgHdr message)
+         {
+             int segmentCount = 0;
+@@ -613,7 +650,7 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+                 return LinuxError.SUCCESS;
+             }
+ 
+-            if (!CanSupportMMsgHdr(message))
++            if (!CanSendMMsgHdr(message))
+             {
+                 Logger.Warning?.Print(LogClass.ServiceBsd, "Unsupported BsdMMsgHdr");
+ 
+@@ -627,14 +664,30 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+ 
+             try
+             {
+-                int sendSize = (Socket as DefaultSocket).BaseSocket.Send(ConvertMessagesToBuffer(message), ConvertBsdSocketFlags(flags), out SocketError socketError);
+-
+-                if (sendSize > 0)
++                foreach (BsdMsgHdr msgHeader in message.Messages)
+                 {
+-                    UpdateMessages(out vlen, message, sendSize);
++                    byte[] buffer = GetMessageBuffer(msgHeader);
++                    int sendSize;
++
++                    if (msgHeader.Name == null)
++                    {
++                        sendSize = Socket.Send(buffer, ConvertBsdSocketFlags(flags));
++                    }
++                    else if (msgHeader.Name.Length >= Marshal.SizeOf<BsdSockAddr>())
++                    {
++                        IPEndPoint remoteEndPoint = MemoryMarshal.Read<BsdSockAddr>(msgHeader.Name).ToIPEndPoint();
++                        sendSize = Socket.SendTo(buffer, ConvertBsdSocketFlags(flags), remoteEndPoint);
++                    }
++                    else
++                    {
++                        return LinuxError.EINVAL;
++                    }
++
++                    msgHeader.Length = (uint)sendSize;
++                    vlen++;
+                 }
+ 
+-                return WinSockHelper.ConvertError((WsaError)socketError);
++                return LinuxError.SUCCESS;
+             }
+             catch (SocketException exception)
+             {

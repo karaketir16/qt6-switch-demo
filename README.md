@@ -29,6 +29,10 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
   Detailed setup, build, test, emulator, and change documentation.
 - `third_party/qtbase/`, `third_party/qtdeclarative/`, `third_party/qtshadertools/`
   Git submodules containing the Qt Switch port and the Qt Quick dependency chain.
+- `third_party/ryubing/`
+  Source-only Ryubing submodule used to build and test the emulator UDP workaround.
+- `patches/ryubing-sendmmsg-udp-destination.patch`
+  Local Ryubing interoperability patch; see `docs/ryubing-development.md`.
 
 ## Quick Start
 
@@ -65,6 +69,13 @@ Astris release page:
 Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running an Astris wrapper script to enable probe logs such as `qt6-switch-probe.log`, `qt6-switch-widgets-probe.log`, or `qt6-switch-quick-probe.log`.
 
 See `docs/what-changed.md` for the higher-level summary.
+
+## Ryubing
+
+The emulator source and its UDP workaround are intentionally kept separate
+from the Qt port. See `docs/ryubing-development.md` for the pinned source
+revision, .NET toolchain under `/Volumes/T7/tools`, patch application, test
+procedure, and repository/legal boundaries.
 
 ## Qt Quick scope
 

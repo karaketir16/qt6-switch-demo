@@ -10,3 +10,7 @@
 	path = third_party/qtshadertools
 	url = https://github.com/karaketir16/qtshadertools.git
 	branch = qt6-switch-demo-v6.8.3
+[submodule "third_party/ryubing"]
+	path = third_party/ryubing
+	url = https://git.ryujinx.app/projects/Ryubing
+	branch = master
