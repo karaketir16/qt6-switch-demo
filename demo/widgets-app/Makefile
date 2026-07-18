@@ -35,7 +35,6 @@ QT_PUBLIC_INCLUDES := \
 	-I$(QT_SWITCH_BUILD)/include \
 	-I$(QT_SWITCH_BUILD)/include/QtCore \
 	-I$(QT_SWITCH_BUILD)/include/QtGui \
-	-I$(QT_SWITCH_BUILD)/include/QtWidgets \
 	-I$(QT_SWITCH_BUILD)/include/QtWidgets
 
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections $(ARCH) $(DEFINES)

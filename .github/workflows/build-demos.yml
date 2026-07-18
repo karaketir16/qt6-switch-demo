@@ -1,6 +1,8 @@
 name: Build demos
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -14,9 +16,14 @@ jobs:
         with:
           submodules: false
 
-      - name: Check out required Qt submodules only
+      - name: Check out required submodules
         run: |
-          git submodule update --init third_party/qtbase third_party/qtdeclarative third_party/qtshadertools
+          git submodule update --init third_party/qtbase third_party/qtdeclarative third_party/qtshadertools third_party/ryubing
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.301
 
       - name: Show Docker version
         run: docker --version
@@ -39,6 +46,9 @@ jobs:
       - name: Build QtNetwork demo
         run: ./scripts/build-qt-network-test.sh
 
+      - name: Build Qt module test
+        run: ./scripts/build-qt-module-test.sh
+
       - name: Build host QtShaderTools tools
         run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/build-host-qtshadertools-tools.sh
 
@@ -60,8 +70,14 @@ jobs:
       - name: Build Qt Quick demo
         run: ./scripts/build-quick-probe.sh
 
+      - name: Build patched Ryubing
+        run: ./scripts/build-ryubing.sh
+
       - name: Verify demo outputs exist
         run: |
           test -f demo/widgets-app/qt6-switch-widgets-probe.nro
+          test -f demo/qt-module-test/qt6-switch-module-test.nro
           test -f demo/qt-network-test/qt6-switch-network-test.nro
           test -f demo/quick-app/qt6-switch-quick-probe.nro
+          test -f third_party/ryubing/src/Ryujinx/bin/Release/net10.0/Ryujinx.dll
+          test -x third_party/ryubing/src/Ryujinx/bin/Release/net10.0/Ryujinx

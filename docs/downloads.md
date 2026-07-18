@@ -17,18 +17,25 @@ This repository includes the forked Qt source as a git submodule at `third_party
 ### devkitPro Switch Build Container
 
 - Source: [Docker Hub: `devkitpro/devkita64`](https://hub.docker.com/r/devkitpro/devkita64)
-- Local image used during development: `devkitpro/devkita64:latest`
-- Local image ID seen during packaging: `sha256:146025c8997f3effc12ad2e2acb8633b1a167d98bb6a551cbd6760f2aac3c892`
+- Image digest used by the scripts:
+  `devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282`
 
 This container provides the Switch-targeting toolchain and libraries used for cross-compiling Qt and the demo application.
 
-### Astris Emulator
+### Ryubing
 
-- Used during verification, but not redistributed by this repository.
-- Release page: [Astris.Binaries releases](https://github.com/V380-Ori/Astris.Binaries/releases)
-- Runtime path is configured through `ASTRIS_APP`.
+- Source: `third_party/ryubing`
+- Pinned revision: `a82350bb774f70fcbd41c9987bf67a3775409963`
+- Required SDK: .NET 10.0.301
 
-This repository documents the Astris workflow that was used, but it does not redistribute Astris itself.
+Only this pinned source build is supported by the runners.
+
+### OpenSSL and CA certificates
+
+- OpenSSL 3.0.16 archive SHA-256:
+  `57e03c50feab5d31b152af2b764f10379aecd8ee92f16c985983ce4a99f7ef86`
+- The standalone network probe embeds the curl Mozilla CA extract documented in
+  `demo/qt-network-test/assets/README.md`.
 
 ### Embedded Demo Font
 
@@ -42,8 +49,7 @@ The final setup embeds the font into the Switch Qt runtime used by the demo.
 
 This repository does not automatically download:
 
-- Astris
-- a fresh Qt checkout
+- a separate emulator binary
 - Docker Desktop
 - GitHub CLI
 

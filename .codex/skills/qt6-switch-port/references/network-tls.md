@@ -42,9 +42,17 @@ The Google target is `https://www.google.com/generate_204`. The test separately 
 
 ## Emulator operation
 
-Ryubing binary: `/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx`.
+Build the pinned source with `scripts/build-ryubing.sh`. The supported runner
+invokes the entitlement-signed
+`third_party/ryubing/src/Ryujinx/bin/Release/net10.0/Ryujinx` executable;
+external binaries are intentionally ignored.
 
-Ryubing maps `sdmc:/` to `~/Library/Application Support/Ryujinx/sdcard/`. Use `scripts/run-qt-network-test-ryubing.sh` to create its emulator/debug markers, clean-start the emulator, and wait for the completed test log. The emulator marker opts into Qt's `select` socket-wait fallback; hardware keeps `poll` unless `sdmc:/qt6-switch-use-select` is created. Starting via `open` can leave stale guest logs or fail to load the requested NRO.
+Ryubing maps `sdmc:/` to `~/Library/Application Support/Ryujinx/sdcard/` by
+default. `scripts/run-qt-network-test-ryubing.sh` clears relevant logs, creates
+the emulator/debug markers, waits for the completed summary, prints the NRO
+SHA-256, and stops the process it started. The emulator marker opts into Qt's
+`select` socket-wait fallback; hardware keeps `poll` unless
+`sdmc:/qt6-switch-use-select` is created.
 
 ## Real hardware evidence
 

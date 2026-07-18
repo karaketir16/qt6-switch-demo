@@ -78,7 +78,7 @@ Or build only the libraries needed by the demo inside the devkitPro container:
 docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/build/qtbase-switch" \
-  devkitpro/devkita64 \
+  devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282 \
   bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Network Widgets OpenGL OpenGLWidgets plugins/platforms/libqswitch.a plugins/tls/libqopensslbackend.a'
 ```
 
@@ -113,7 +113,7 @@ Or run the container directly:
 docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/demo/widgets-app" \
-  devkitpro/devkita64 \
+  devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282 \
   bash -lc 'make -j"$(nproc)" clean nro'
 ```
 
@@ -186,22 +186,25 @@ QtBase -> Widgets demo
 QtBase -> QtShaderTools -> QtDeclarative/Quick -> Qt Quick demo
 ```
 
-The manual GitHub Actions workflow checks out only the three Qt submodules above.
+GitHub Actions checks out the three Qt submodules above plus the pinned Ryubing
+submodule. QtDeclarative's nested `test262` testsuite is intentionally omitted
+because the workflow builds products but does not run Qt's upstream test suite.
 
-## 8. Run in Astris
+## 8. Build the pinned Ryubing source
 
 ```bash
-ASTRIS_APP="/path/to/Astris.app" \
-ASTRIS_DATA="/path/to/astrisData" \
-./scripts/run-qt6-switch-widgets-probe-astris.sh
+./scripts/build-ryubing.sh
 ```
 
-For the Qt Quick demo:
+Scripts find .NET through `DOTNET`, `PATH`, or the optional sibling
+`../tools/dotnet` installation. The build script temporarily applies the
+tracked socket compatibility patch when the submodule is clean and restores
+the clean source after the build.
+
+Launch an interactive demo with the locally built emulator:
 
 ```bash
-ASTRIS_APP="/path/to/Astris.app" \
-ASTRIS_DATA="/path/to/astrisData" \
-./scripts/run-qt6-switch-quick-probe-astris.sh
+./scripts/launch-qt-demo-ryubing.sh demo/widgets-app/qt6-switch-widgets-probe.nro
 ```
 
 ## 9. Run the Qt Module Test
@@ -217,15 +220,21 @@ Expected output:
 - `demo/qt-module-test/qt6-switch-module-test.elf`
 - `demo/qt-module-test/qt6-switch-module-test.nro`
 
-Run it in Astris:
+Run it in the locally built Ryubing:
 
 ```bash
-./scripts/run-qt6-switch-module-test-astris.sh
+./scripts/run-qt-module-test-ryubing.sh
 ```
 
 The application tests QtCore, QtThreads, QtGui and QtWidgets/QPA on-screen.
 QtNetwork has its own standalone probe so module-test failures remain isolated;
 see `demo/qt-network-test/README.md`.
+
+The network probe is run the same way:
+
+```bash
+./scripts/run-qt-network-test-ryubing.sh
+```
 
 ## 10. Upload to Real Hardware Over FTP
 

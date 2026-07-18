@@ -32,39 +32,36 @@ git -C third_party/ryubing apply --check ../../patches/ryubing-sendmmsg-udp-dest
 
 ## Toolchain
 
-Ryubing pins the .NET SDK in `global.json`. The required SDK is installed
-outside this repository at `/Volumes/T7/tools/dotnet`:
+Ryubing pins .NET SDK 10.0.301 in `global.json`. Scripts discover it through
+`DOTNET`, `PATH`, or an optional `../tools/dotnet` sibling installation.
 
 ```sh
-curl --fail --location --silent --show-error https://dot.net/v1/dotnet-install.sh -o /tmp/ryubing-dotnet-install.sh
-bash /tmp/ryubing-dotnet-install.sh --version 10.0.301 --install-dir /Volumes/T7/tools/dotnet --no-path
-```
-
-Use it without modifying the system-wide SDK installation:
-
-```sh
-export DOTNET_ROOT=/Volumes/T7/tools/dotnet
-export PATH="$DOTNET_ROOT:$PATH"
+export DOTNET="/path/to/dotnet"
+"$DOTNET" --version
 ```
 
 ## Build a patched Ryubing
 
 ```sh
-git -C third_party/ryubing apply ../../patches/ryubing-sendmmsg-udp-destination.patch
-DOTNET_ROOT=/Volumes/T7/tools/dotnet /Volumes/T7/tools/dotnet/dotnet build Ryujinx.sln --configuration Release
-git -C third_party/ryubing apply -R ../../patches/ryubing-sendmmsg-udp-destination.patch
+./scripts/build-ryubing.sh
 ```
 
-The Release executable is written below
-`third_party/ryubing/src/Ryujinx/bin/Release/net10.0/`. Do not commit that
-output or the applied submodule worktree.
+The script applies the patch only when necessary and reverses its own temporary
+application on exit. Release output is written below
+`third_party/ryubing/src/Ryujinx/bin/Release/net10.0/`.
 
 ## Verification
 
-Ryubing was compiled with .NET SDK 10.0.301 on macOS arm64 with zero errors
-and warnings. The patched emulator completed the network NRO with `15/15`
-passes: TCP, UDP, local HTTP, libcurl HTTPS, and Qt OpenSSL HTTPS. Its log had
-no `Invalid socket descriptor` entry.
+Run the current automated probes with:
+
+```sh
+./scripts/run-qt-module-test-ryubing.sh
+./scripts/run-qt-network-test-ryubing.sh
+```
+
+The network probe has completed with `15/15` passes both in the locally built
+emulator and on physical Switch. Physical hardware remains authoritative;
+old device logs kept for reference are not a statement about the current build.
 
 ## Licensing and repository boundaries
 

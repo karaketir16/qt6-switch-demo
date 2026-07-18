@@ -21,3 +21,23 @@ distinguishable from real-hardware results.
 QtTest and QtQuickTest do not currently have a supported Switch runner in this
 repository. Visible probes remain the practical validation path for QPA, input,
 rendering, and module integration until a repeatable test harness exists.
+
+Build the pinned emulator once, then run the automated probes:
+
+```sh
+./scripts/build-ryubing.sh
+./scripts/run-qt-module-test-ryubing.sh
+./scripts/run-qt-network-test-ryubing.sh
+```
+
+The runners accept only the executable built from `third_party/ryubing`, clear
+the relevant guest logs, stop their own process on exit, print the NRO SHA-256,
+and fail when the guest trace contains a failed check. Physical Switch results
+remain authoritative for hardware networking and TLS.
+
+Automated runners close Ryubing after collecting the result. To keep a probe
+open for inspection, use the interactive launcher instead:
+
+```sh
+./scripts/launch-qt-demo-ryubing.sh demo/qt-module-test/qt6-switch-module-test.nro
+```

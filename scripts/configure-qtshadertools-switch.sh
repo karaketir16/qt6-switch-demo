@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+. "${REPO_ROOT}/scripts/devkit-image.sh"
 QTSHADERTOOLS_DIR="${1:-${REPO_ROOT}/third_party/qtshadertools}"
 BUILD_DIR="${2:-${REPO_ROOT}/build/qtshadertools-switch}"
 TOOLCHAIN_FILE="${3:-${REPO_ROOT}/extras/toolchain-switch.cmake}"
@@ -12,23 +13,31 @@ QT_CMAKE_OVERLAY_DIR="${QT_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtbase-switch-c
 QT_BASE_CMAKE_DIR="${QT_SWITCH_PREFIX}/lib/cmake/Qt6"
 QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR="${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtshadertools-host-cmake-overlay}"
 
+QSB_PATH=""
+for candidate in \
+    "${QTSHADERTOOLS_HOST_BUILD}/bin/qsb" \
+    "${QTSHADERTOOLS_HOST_BUILD}/libexec/qsb" \
+    "${QT_HOST_PATH_VALUE}/bin/qsb"; do
+    if [ -f "${candidate}" ] && [ -x "${candidate}" ]; then
+        QSB_PATH="${candidate}"
+        break
+    fi
+done
+if [ -z "${QSB_PATH}" ]; then
+    echo "Missing QtShaderTools host tool: qsb" >&2
+    exit 1
+fi
+
 mkdir -p "${BUILD_DIR}" "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6"
-cp -a "${QT_BASE_CMAKE_DIR}/." "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/"
+cp -R "${QT_BASE_CMAKE_DIR}/." "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/"
 cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
     "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
 mkdir -p "${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools"
 cat > "${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsToolsConfig.cmake" <<EOF
 set(Qt6ShaderToolsTools_FOUND TRUE)
 if(NOT TARGET Qt6::qsb)
-    if(EXISTS "${QTSHADERTOOLS_HOST_BUILD}/bin/qsb")
-        add_executable(Qt6::qsb IMPORTED GLOBAL)
-        set_target_properties(Qt6::qsb PROPERTIES
-            IMPORTED_LOCATION "${QTSHADERTOOLS_HOST_BUILD}/bin/qsb")
-    elseif(EXISTS "${QTSHADERTOOLS_HOST_BUILD}/tools/qsb")
-        add_executable(Qt6::qsb IMPORTED GLOBAL)
-        set_target_properties(Qt6::qsb PROPERTIES
-            IMPORTED_LOCATION "${QTSHADERTOOLS_HOST_BUILD}/tools/qsb")
-    endif()
+    add_executable(Qt6::qsb IMPORTED GLOBAL)
+    set_target_properties(Qt6::qsb PROPERTIES IMPORTED_LOCATION "${QSB_PATH}")
 endif()
 if(NOT TARGET Qt::qsb AND TARGET Qt6::qsb)
     add_executable(Qt::qsb IMPORTED GLOBAL)
@@ -45,14 +54,14 @@ EOF
 docker run --rm \
     -v "${REPO_ROOT}:${REPO_ROOT}" \
     -w "${REPO_ROOT}" \
-    devkitpro/devkita64 \
+    "${DEVKITA64_IMAGE}" \
     bash -lc "
-        cmake -S '${QTSHADERTOOLS_DIR}' -B '${BUILD_DIR}' -GNinja \
+        cmake --fresh -S '${QTSHADERTOOLS_DIR}' -B '${BUILD_DIR}' -GNinja \
             -DQT_QMAKE_TARGET_MKSPEC=devices/switch-aarch64-libnx-g++ \
             -DSWITCH=ON \
             -DQT_MKSPECS_DIR='${REPO_ROOT}/third_party/qtbase/mkspecs' \
             -DCMAKE_TOOLCHAIN_FILE='${TOOLCHAIN_FILE}' \
-            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE:STRING=BOTH \
+            -DCMAKE_BUILD_TYPE=Release \
             -DQt6_DIR='${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6' \
             -DQt6Core_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Core' \
             -DQt6Gui_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Gui' \

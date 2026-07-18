@@ -27,7 +27,6 @@ The result is printed to stdout and appended on hardware to
 fails. Emulator socket-service limitations should be treated separately from
 the real Switch result.
 
-The Ryubing runner enables the emulator's Qt `select` socket-wait fallback,
-waits for the final summary, then exits non-zero if any probe failed. It writes host output to
-`/tmp/ryubing-network.stdout` and `/tmp/ryubing-network.stderr`; see
-`docs/astris-testing.md` for the SD-card mapping and TLS log locations.
+The runner uses only the binary built from `third_party/ryubing`, enables Qt's
+emulator socket-wait fallback, waits for the final summary, and exits non-zero
+if any probe failed. Host output is kept under `build/test-results/`.

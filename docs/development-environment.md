@@ -4,7 +4,8 @@ This document describes the environment that was used to bring up the demo and w
 
 ## Host Machine
 
-The verified workflow was run from macOS, but the repository is now structured so it does not depend on a machine-specific mount point.
+The verified workflow was run from macOS. Repository scripts derive paths from
+the checkout and do not depend on a machine-specific mount point.
 
 Recommended prerequisites:
 
@@ -12,7 +13,7 @@ Recommended prerequisites:
 - `docker`
 - `cmake`
 - `ninja`
-- `gh` (optional, only needed for GitHub publishing)
+- .NET SDK 10.0.301
 
 ## Directory Layout
 
@@ -22,6 +23,9 @@ The repository now assumes this internal layout:
 qt6-switch-demo/
   third_party/
     qtbase/
+    qtdeclarative/
+    qtshadertools/
+    ryubing/
   build/
     qtbase-host/
     qtbase-switch/
@@ -29,8 +33,6 @@ qt6-switch-demo/
   scripts/
   docs/
 ```
-
-Astris paths are provided via environment variables instead of hardcoded machine-local paths.
 
 ## Required Tools
 
@@ -47,35 +49,25 @@ git submodule update --init --recursive
 Pull the build image:
 
 ```bash
-docker pull devkitpro/devkita64:latest
+docker pull devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282
 ```
 
-### Astris
+### Ryubing
 
-Install Astris separately, then provide the path at runtime:
+Ryubing is built from the pinned source submodule. Scripts check `DOTNET`,
+`PATH`, and the optional sibling installation at `../tools/dotnet`. Set
+`DOTNET` explicitly when the SDK is elsewhere:
 
 ```bash
-export ASTRIS_APP="/path/to/Astris.app"
-export ASTRIS_DATA="/path/to/astrisData"
+export DOTNET="/path/to/dotnet"
+./scripts/build-ryubing.sh
 ```
 
-### Ryubing / Ryujinx for QtNetwork
-
-The network runner launches Ryubing directly and stages its SD-card files:
-
-```bash
-export RYUBING_APP="/path/to/Ryujinx"
-export RYUBING_SDCARD="/path/to/Ryujinx/sdcard"
-```
-
-### GitHub CLI
-
-Only required if you want to publish this repo from the command line:
-
-```bash
-gh auth status
-```
+`RYUBING_SDCARD` is optional and defaults to Ryubing's normal macOS SD-card
+directory.
 
 ## Why the Workflow Uses Docker
 
-The Switch-targeting Qt build was verified inside the `devkitpro/devkita64` container rather than on the host directly. This keeps the Switch toolchain and portlibs consistent and avoids host-specific package drift.
+The Switch-targeting Qt build runs in the digest-pinned devkitA64 container
+rather than on the host directly. This keeps the Switch toolchain and portlibs
+consistent and avoids host-specific package drift.

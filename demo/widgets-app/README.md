@@ -26,7 +26,7 @@ Or run the container directly:
 docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/demo/widgets-app" \
-  devkitpro/devkita64 \
+  devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282 \
   bash -lc 'make -j"$(nproc)" clean nro'
 ```
 

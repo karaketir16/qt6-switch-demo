@@ -54,10 +54,6 @@ QT_PUBLIC_INCLUDES := \
 	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQmlMeta \
 	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQmlModels \
 	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQmlWorkerScript \
-	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQuick \
-	-I$(QT_SWITCH_BUILD)/include/QtOpenGL \
-	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQml \
-	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQmlModels \
 	-I$(QTDECLARATIVE_SWITCH_BUILD)/include/QtQuick
 
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections $(ARCH) $(DEFINES)

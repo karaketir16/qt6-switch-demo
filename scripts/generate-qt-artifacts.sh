@@ -8,8 +8,11 @@ OUT="${3:-${QTBASE}/qt-switch-artifacts.mk}"
 
 pick() {
     local root="$1" name="$2" result
-    result="$(find "$root" -type f -name "$name" -print -quit)"
+    result="$(find "$root" -type f -name "$name" -print)"
     [ -n "$result" ] || { echo "Missing Qt artifact $name under $root" >&2; exit 1; }
+    case "$result" in
+        *$'\n'*) echo "Ambiguous Qt artifact $name under $root" >&2; exit 1 ;;
+    esac
     printf '%s' "$result"
 }
 

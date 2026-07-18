@@ -45,8 +45,13 @@ Keep certificate verification enabled. Generic native Qt public HTTPS can load a
 ## Validation hierarchy
 
 1. Compile the changed Qt target and NRO.
-2. Use Ryubing to confirm loadability, entropy initialization, and CA-bundle discovery.
+2. Build `third_party/ryubing` with `scripts/build-ryubing.sh`, then use that
+   build to confirm loadability, entropy initialization, and CA-bundle discovery.
 3. Run the same NRO on a real Switch for network/TLS truth.
 4. Report exact logs, counts, status codes, and the NRO SHA-256.
 
-Ryubing may report `Invalid socket descriptor` for Qt TCP/UDP/HTTP(S) even while TLS initialization and CA loading are correct. Do not turn that into a Switch regression. Use the direct clean-launch procedure in `docs/astris-testing.md`.
+The supported emulator is exclusively the binary built from the pinned
+`third_party/ryubing` source plus the tracked compatibility patch. Do not use a
+packaged or external Ryubing/Ryujinx binary as validation evidence.
+Automated `run-qt-*-ryubing.sh` runners close the process after capturing the
+summary; use `scripts/launch-qt-demo-ryubing.sh <nro>` for an interactive run.

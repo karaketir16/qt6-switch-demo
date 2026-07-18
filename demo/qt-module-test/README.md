@@ -14,7 +14,7 @@ Build and run it from the repository root:
 
 ```bash
 ./scripts/build-qt-module-test.sh
-./scripts/run-qt6-switch-module-test-astris.sh
+./scripts/run-qt-module-test-ryubing.sh
 ```
 
 For repeatable automation, pass `--batch`: the probe exits with status 0 only

@@ -2,16 +2,14 @@
 
 This repository packages a reproducible Qt 6 Nintendo Switch bring-up demo based on a forked `qtbase` tree, a small Qt Widgets homebrew application, and the scripts and documentation needed to build, test, and run it.
 
-![Astris verification](./verification/astris-widgets-demo-menu.png)
-
 ## Status
 
 Current verified state:
 
 - A forked Qt 6 `qtbase` can be cross-built for Nintendo Switch.
 - The custom `switch` QPA plugin renders a Qt Widgets application.
-- The demo application runs in Astris.
-- Input works in the Astris demo.
+- The demos and automated probes run in the locally built Ryubing submodule.
+- All current probes have also passed on a physical Switch; historical device logs are not tracked.
 
 This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 
@@ -22,7 +20,7 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 - `demo/quick-app/`
   Qt Quick smoke-test homebrew app.
 - `scripts/`
-  Helper scripts for building host tools, configuring the Switch target, running in Astris, and uploading to real hardware over FTP.
+  Helper scripts for building Qt, Ryubing and the Switch probes, running tests, and uploading to real hardware over FTP.
 - `extras/`
   Supporting files such as the Switch CMake toolchain file.
 - `docs/`
@@ -33,6 +31,8 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
   Source-only Ryubing submodule used to build and test emulator socket compatibility.
 - `patches/ryubing-sendmmsg-udp-destination.patch`
   Local Ryubing interoperability patch; see `docs/ryubing-development.md`.
+- `patches/openssl-3.0.16-switch-rng.patch`
+  Local OpenSSL/libnx entropy-source patch.
 
 ## Quick Start
 
@@ -40,9 +40,9 @@ Run the documented wrapper scripts from the repository root.
 
 1. Read `docs/downloads.md`.
 2. Prepare the environment from `docs/development-environment.md`.
-3. Pull the submodule as described in `docs/build-and-run.md`.
+3. Pull the submodules as described in `docs/build-and-run.md`.
 4. Build host tools and configure Qt as described in `docs/build-and-run.md`.
-5. Verify the result in Astris using `docs/astris-testing.md`.
+5. Build the pinned Ryubing source and run the probes as described in `docs/testing-strategy.md`.
 
 The demo build output ends up at:
 
@@ -60,22 +60,16 @@ That submodule points to:
 - fork: [karaketir16/qtbase](https://github.com/karaketir16/qtbase)
 - branch: `qt6-switch-demo-v6.8.3`
 
-## Astris
-
-Astris release page:
-
-- [Astris.Binaries releases](https://github.com/V380-Ori/Astris.Binaries/releases)
-
-Switch-specific guest trace logging is disabled by default. Set `QT_SWITCH_DEBUG_LOG=1` before running an Astris wrapper script to enable probe logs such as `qt6-switch-probe.log`, `qt6-switch-widgets-probe.log`, or `qt6-switch-quick-probe.log`.
-
-See `docs/what-changed.md` for the higher-level summary.
-
 ## Ryubing
 
-The emulator source and its UDP workaround are intentionally kept separate
-from the Qt port. See `docs/ryubing-development.md` for the pinned source
-revision, .NET toolchain under `/Volumes/T7/tools`, patch application, test
-procedure, and repository/legal boundaries.
+The repository builds and runs only the pinned `third_party/ryubing` source;
+no packaged or external emulator binary is used. See
+`docs/ryubing-development.md` for the build and test procedure.
+
+Switch-specific guest tracing is disabled by default. Set
+`QT_SWITCH_DEBUG_LOG=1` before a test runner to collect the shared probe logs.
+
+See `docs/what-changed.md` for the higher-level summary.
 
 ## Qt Quick scope
 
