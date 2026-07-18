@@ -23,6 +23,7 @@ docker run --rm \
             -DQT_MKSPECS_DIR='${REPO_ROOT}/third_party/qtbase/mkspecs' \
             -DQt6_DIR='${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6' \
             -DQt6Core_DIR='${QT_HOST_PATH_VALUE}/lib/cmake/Qt6Core' \
+            -DQt6Gui_DIR='${QT_HOST_PATH_VALUE}/lib/cmake/Qt6Gui' \
             -DQt6BuildInternals_DIR='${QT_HOST_PATH_VALUE}/lib/cmake/Qt6BuildInternals' \
             -DQT_HOST_PATH='${QT_HOST_PATH_VALUE}' \
             -DQT_BUILD_EXAMPLES=OFF \
