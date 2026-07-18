@@ -30,7 +30,7 @@ This is still a bring-up demo, not a full upstream-ready Qt for Switch port.
 - `third_party/qtbase/`, `third_party/qtdeclarative/`, `third_party/qtshadertools/`
   Git submodules containing the Qt Switch port and the Qt Quick dependency chain.
 - `third_party/ryubing/`
-  Source-only Ryubing submodule used to build and test the emulator UDP workaround.
+  Source-only Ryubing submodule used to build and test emulator socket compatibility.
 - `patches/ryubing-sendmmsg-udp-destination.patch`
   Local Ryubing interoperability patch; see `docs/ryubing-development.md`.
 

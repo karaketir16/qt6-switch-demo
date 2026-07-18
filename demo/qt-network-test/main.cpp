@@ -330,8 +330,11 @@ ProbeResult testUdpBurst()
     QObject::connect(&server, &QUdpSocket::readyRead, &loop, [&] {
         while (server.hasPendingDatagrams()) {
             QByteArray datagram(int(server.pendingDatagramSize()), Qt::Uninitialized);
-            server.readDatagram(datagram.data(), datagram.size());
-            received.append(datagram);
+            const qint64 size = server.readDatagram(datagram.data(), datagram.size());
+            if (size >= 0) {
+                datagram.resize(int(size));
+                received.append(datagram);
+            }
         }
         if (received.size() >= 2)
             loop.quit();

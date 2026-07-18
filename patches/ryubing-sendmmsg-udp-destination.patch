@@ -1,8 +1,116 @@
+diff --git a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/IClient.cs b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/IClient.cs
+index ef3b68b27..3b0e94354 100644
+--- a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/IClient.cs
++++ b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/IClient.cs
+@@ -553,11 +553,11 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd
+ 
+                     receiveRegion.Dispose();
+ 
+-                    if (sockAddrOutSize != 0 && sockAddrOutSize >= (ulong)Unsafe.SizeOf<BsdSockAddr>())
++                    if (sockAddrOutSize >= (ulong)Unsafe.SizeOf<BsdSockAddr>())
+                     {
+                         context.Memory.Write(sockAddrOutPosition, BsdSockAddr.FromIPEndPoint(endPoint));
+                     }
+-                    else
++                    else if (sockAddrOutSize != 0)
+                     {
+                         errno = LinuxError.ENOMEM;
+                     }
+@@ -850,6 +850,21 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd
+                         context.Memory.Write(bufferPosition, 0);
+                         break;
+ 
++                    case BsdIoctl.FionRead:
++                        errno = LinuxError.SUCCESS;
++
++                        (bufferPosition, bufferSize) = context.Request.GetBufferType0x22();
++
++                        if (bufferSize >= sizeof(int))
++                        {
++                            context.Memory.Write(bufferPosition, socket.Available);
++                        }
++                        else
++                        {
++                            errno = LinuxError.ENOMEM;
++                        }
++                        break;
++
+                     default:
+                         errno = LinuxError.EOPNOTSUPP;
+ 
+diff --git a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/ISocket.cs b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/ISocket.cs
+index cf32daf3b..6cef35f9f 100644
+--- a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/ISocket.cs
++++ b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/ISocket.cs
+@@ -16,6 +16,8 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd
+ 
+         ProtocolType ProtocolType { get; }
+ 
++        int Available { get; }
++
+         nint Handle { get; }
+ 
+         LinuxError Receive(out int receiveSize, Span<byte> buffer, BsdSocketFlags flags);
 diff --git a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs
-index 0624fcf91..9bd4a36fd 100644
+index 0624fcf91..14017bccc 100644
 --- a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs
 +++ b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs
-@@ -491,6 +491,43 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+@@ -19,6 +19,8 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+ 
+         public ProtocolType ProtocolType => Socket.ProtocolType;
+ 
++        public int Available => Socket.Available;
++
+         public bool Blocking { get => Socket.Blocking; set => Socket.Blocking = value; }
+ 
+         public nint Handle => nint.Zero;
+@@ -254,7 +256,21 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+                     _hasEmittedBlockingWarning = true;
+                 }
+ 
+-                receiveSize = Socket.Receive(buffer, ConvertBsdSocketFlags(flags));
++                bool peekDatagramSize = SocketType == SocketType.Dgram &&
++                    flags.HasFlag(BsdSocketFlags.Peek) &&
++                    flags.HasFlag(BsdSocketFlags.Trunc) &&
++                    Socket.Available > 0;
++
++                if (peekDatagramSize)
++                {
++                    // ponytail: .NET lacks the BSD MSG_TRUNC byte-count behavior.
++                    // Available is an upper bound for the following receive buffer.
++                    receiveSize = Socket.Available;
++                }
++                else
++                {
++                    receiveSize = Socket.Receive(buffer, ConvertBsdSocketFlags(flags));
++                }
+ 
+                 result = LinuxError.SUCCESS;
+             }
+@@ -309,7 +325,21 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+                     return LinuxError.EOPNOTSUPP;
+                 }
+ 
+-                receiveSize = Socket.ReceiveFrom(buffer[..size], ConvertBsdSocketFlags(flags), ref temp);
++                bool peekDatagramSize = SocketType == SocketType.Dgram &&
++                    flags.HasFlag(BsdSocketFlags.Peek) &&
++                    flags.HasFlag(BsdSocketFlags.Trunc) &&
++                    Socket.Available > 0;
++
++                if (peekDatagramSize)
++                {
++                    // ponytail: .NET lacks the BSD MSG_TRUNC byte-count behavior.
++                    // Available is an upper bound for the following receive buffer.
++                    receiveSize = Socket.Available;
++                }
++                else
++                {
++                    receiveSize = Socket.ReceiveFrom(buffer[..size], ConvertBsdSocketFlags(flags), ref temp);
++                }
+ 
+                 remoteEndPoint = (IPEndPoint)temp;
+                 result = LinuxError.SUCCESS;
+@@ -491,6 +521,43 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
              return true;
          }
  
@@ -46,7 +154,7 @@ index 0624fcf91..9bd4a36fd 100644
          private static ArraySegment<byte>[] ConvertMessagesToBuffer(BsdMMsgHdr message)
          {
              int segmentCount = 0;
-@@ -613,7 +650,7 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+@@ -613,7 +680,7 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
                  return LinuxError.SUCCESS;
              }
  
@@ -55,7 +163,7 @@ index 0624fcf91..9bd4a36fd 100644
              {
                  Logger.Warning?.Print(LogClass.ServiceBsd, "Unsupported BsdMMsgHdr");
  
-@@ -627,14 +664,30 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
+@@ -627,14 +694,30 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Impl
  
              try
              {
@@ -91,3 +199,26 @@ index 0624fcf91..9bd4a36fd 100644
              }
              catch (SocketException exception)
              {
+diff --git a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdIoctl.cs b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdIoctl.cs
+index d38bd02b8..27b8c2301 100644
+--- a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdIoctl.cs
++++ b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdIoctl.cs
+@@ -3,5 +3,6 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Types
+     enum BsdIoctl
+     {
+         AtMark = 0x40047307,
++        FionRead = 0x4004667f,
+     }
+ }
+diff --git a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdSocketOption.cs b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdSocketOption.cs
+index 2796d95ca..10ec8d333 100644
+--- a/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdSocketOption.cs
++++ b/src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Types/BsdSocketOption.cs
+@@ -40,7 +40,6 @@ namespace Ryujinx.HLE.HOS.Services.Sockets.Bsd.Types
+         SoTsClock = 0x1017,
+         SoMaxPacingRate = 0x1018,
+         SoDomain = 0x1019,
+-
+         IpOptions = 1,
+         IpHdrIncl = 2,
+         IpTos = 3,

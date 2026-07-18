@@ -112,7 +112,7 @@ Input was verified in Astris by observing:
 ## Ryubing / Ryujinx: QtNetwork Test
 
 For the network test, use the direct Ryubing runner rather than Astris. It
-stops a prior Ryubing process, enables the Qt `select` socket-wait fallback,
+stops any prior instance of this NRO, clears prior guest and host runner logs,
 waits for the final test summary, and returns non-zero for a failed probe.
 
 ```bash
@@ -140,6 +140,5 @@ Expected TLS setup evidence in `qt6-switch-probe.log` is:
 PASS Qt Google HTTPS ... embeddedCa=<positive count> ... error=none
 ```
 
-The `sdmc:/qt6-switch-emulator` marker selects Qt's `select` socket-wait
-fallback. For an opt-in real-device test, create `sdmc:/qt6-switch-use-select`;
-normal hardware keeps `poll` by default.
+The `sdmc:/qt6-switch-emulator` marker selects the Ryubing-specific fallback
+path. Normal hardware keeps `poll` by default.

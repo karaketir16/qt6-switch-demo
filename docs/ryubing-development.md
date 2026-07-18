@@ -1,4 +1,4 @@
-# Ryubing UDP workaround
+# Ryubing socket compatibility patches
 
 `third_party/ryubing` is a source-only git submodule pinned to Ryubing commit
 `a82350bb774f70fcbd41c9987bf67a3775409963`. It contains neither a Ryubing
@@ -8,15 +8,17 @@ binary nor Nintendo material.
 
 libnx uses the Switch BSD `SendMMsg` IPC command for Qt UDP datagrams. Ryubing
 rejects a message that contains a destination sockaddr (`BsdMsgHdr.Name`) with
-`EOPNOTSUPP`, although it already has a working host `SendTo` path. TCP and
-HTTPS do not use this workaround.
+`EOPNOTSUPP`, although it already has a working host `SendTo` path. The Ryubing
+patch also accepts an omitted `recvfrom` address buffer and handles Qt's UDP
+`MSG_PEEK | MSG_TRUNC` size probe.
 
 `patches/ryubing-sendmmsg-udp-destination.patch` sends each addressed datagram
 through the host `SendTo` API. It deliberately continues to reject ancillary
 control data: silently dropping it would produce incorrect socket semantics.
 
-The patch is kept outside the submodule so that the upstream revision remains
-auditable and updates are explicit.
+The QtBase fallback-poll fix is committed and pushed in the QtBase submodule,
+not kept as a local patch. The Ryubing patch remains outside its submodule so
+the upstream revision is auditable and updates are explicit.
 
 ## Patch maintenance
 
@@ -24,7 +26,7 @@ Do not edit patch hunks by hand. Apply the intended source change in a clean
 submodule worktree, then regenerate the patch with Git and validate it:
 
 ```sh
-git -C third_party/ryubing diff --binary -- src/Ryujinx.HLE/HOS/Services/Sockets/Bsd/Impl/ManagedSocket.cs > patches/ryubing-sendmmsg-udp-destination.patch
+git -C third_party/ryubing diff --binary -- src/Ryujinx.HLE/HOS/Services/Sockets/Bsd > patches/ryubing-sendmmsg-udp-destination.patch
 git -C third_party/ryubing apply --check ../../patches/ryubing-sendmmsg-udp-destination.patch
 ```
 
@@ -59,12 +61,10 @@ output or the applied submodule worktree.
 
 ## Verification
 
-The patch was compiled with .NET SDK 10.0.301 on macOS arm64; the solution
-completed with zero errors and zero warnings. A runtime test confirmed that
-the `ServiceBsd SendMMsg: Unsupported BsdMMsgHdr` rejection is gone. It then
-failed in Ryubing's host `SendTo` path with `ENOMEM`, so the guest network test
-does not yet complete. Investigate that separate host-socket error before
-claiming UDP support.
+Ryubing was compiled with .NET SDK 10.0.301 on macOS arm64 with zero errors
+and warnings. The patched emulator completed the network NRO with `15/15`
+passes: TCP, UDP, local HTTP, libcurl HTTPS, and Qt OpenSSL HTTPS. Its log had
+no `Invalid socket descriptor` entry.
 
 ## Licensing and repository boundaries
 
