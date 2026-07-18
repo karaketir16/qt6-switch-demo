@@ -88,6 +88,11 @@ slower. Keep the listener on loopback unless remote access is intentional.
 For broad QtBase/QtDeclarative smoke coverage, use the single binary in
 `demo/qt-ultimate-test`. Build it through the pinned devkit container:
 
+QtTest is not required for this diagnostic. The custom GUI harness is
+intentional: it keeps results on screen, logs the active step, and makes GDB
+inspection direct. Use QtTest separately only for focused regression suites
+where its assertion and data-driven test features are useful.
+
 ```bash
 scripts/build-qt-module-test.sh \
     /Volumes/T7/qt6-switch-demo/demo/qt-ultimate-test
