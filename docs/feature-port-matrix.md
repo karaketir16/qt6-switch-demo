@@ -12,7 +12,7 @@ paths; it does **not** claim that every API in a `Supported` module is complete.
 | Can I build a Qt Quick/QML application? | Yes, with the software renderer and statically embedded QML resources. |
 | Are QtCore threads tested? | Yes. The module test executes code on a worker `QThread`. |
 | Is hardware-accelerated Qt Quick available? | No. OpenGL/GPU scene graph support is missing. |
-| Is QtNetwork usable? | Yes on real Switch hardware, including native Qt HTTPS; emulator socket-service coverage is incomplete. |
+| Is QtNetwork usable? | The build and probe exist, but native Switch HTTPS needs a fresh hardware validation; emulator socket-service coverage is incomplete. |
 | Is QtWebEngine available? | No. It is outside the current branch scope. |
 | Is this a complete Qt port? | No. It is a working QtCore/Gui/Widgets + QML/Quick bring-up. |
 
@@ -38,7 +38,7 @@ paths; it does **not** claim that every API in a `Supported` module is complete.
 | QtQmlModels | Build/link validated | Included in the Quick dependency chain and statically linked. | Add a model/view test with list, model updates and delegates. |
 | QtQmlWorkerScript | Build/link validated | Included in the Quick dependency chain and plugin set. | Add an actual WorkerScript runtime test. |
 | QtShaderTools | Workaround | Host `qsb` is used to prepare the Quick dependency chain. | Validate shader compilation variants and document supported shader formats. |
-| QtNetwork | Supported on hardware | A standalone probe passes addressing, interfaces, DNS, TCP/UDP, local HTTP, `QNetworkAccessManager`, and Google DNS/HTTPS on real Switch hardware. Native `QNetworkAccessManager` HTTPS uses Qt OpenSSL, libnx CSPRNG seeding, and an SD-deployed PEM root bundle. Ryubing may lack BSD socket-service paths. | Expand protocol and failure-path coverage; keep real hardware as the authoritative network test target. |
+| QtNetwork | Hardware revalidation required | A standalone probe covers addressing, interfaces, DNS, TCP/UDP, local HTTP, `QNetworkAccessManager`, and Google DNS/HTTPS. Native `QNetworkAccessManager` HTTPS uses Qt OpenSSL, libnx CSPRNG seeding, and an SD-deployed PEM root bundle. Historical hardware logs are not tracked; Ryubing may lack BSD socket-service paths. | Run the probe on real hardware and retain the result externally before calling native HTTPS supported. |
 | QtOpenGL | Missing | QPA reports OpenGL and GL surface capabilities as unavailable. | Implement a Switch graphics context and platform GL integration. |
 | Qt Quick GPU scene graph | Missing | Quick is forced to the software backend. | This is the highest-impact performance task for real Quick applications. |
 | QtWebEngine | Missing | No WebEngine module, demo or current build path. | Treat as a separate large project after QtNetwork and graphics foundations. |
@@ -89,7 +89,7 @@ paths; it does **not** claim that every API in a `Supported` module is complete.
 ./scripts/build-qt-module-test.sh
 ./scripts/run-qt6-switch-module-test-astris.sh
 ./scripts/build-qt-network-test.sh
-./scripts/run-qt-network-test-astris.sh
+./scripts/run-qt-network-test-ryubing.sh
 ```
 
 The module test is a focused runtime smoke test, not a replacement for Qt's

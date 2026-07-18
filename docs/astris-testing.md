@@ -111,21 +111,12 @@ Input was verified in Astris by observing:
 
 ## Ryubing / Ryujinx: QtNetwork Test
 
-For the network test, launch Ryubing directly rather than through Astris.
-Always stop a previous Ryubing process first; otherwise the new NRO may not be
-loaded and its guest logs can be stale.
+For the network test, use the direct Ryubing runner rather than Astris. It
+stops a prior Ryubing process, stages the CA bundle, waits for the final test
+summary, and returns non-zero for a failed probe.
 
 ```bash
-pkill -f '/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx' || true
-sleep 2
-/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx \
-  /Volumes/T7/qt6-switch-demo/demo/qt-network-test/qt6-switch-network-test.nro \
-  >/tmp/ryubing-network.stdout 2>/tmp/ryubing-network.stderr &
-disown
-sleep 15
-tail -80 /tmp/ryubing-network.stderr
-tail -20 /tmp/ryubing-network.stdout
-ls -lt ~/Library/Logs/Ryujinx | head -3
+./scripts/run-qt-network-test-ryubing.sh
 ```
 
 Ryubing maps `sdmc:/` to:

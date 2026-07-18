@@ -44,8 +44,10 @@ The Google target is `https://www.google.com/generate_204`. The test separately 
 
 Ryubing binary: `/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx`.
 
-Ryubing maps `sdmc:/` to `~/Library/Application Support/Ryujinx/sdcard/`. Before running a TLS test, stage a bundle as `qt6-switch-ca-bundle.pem`, create `qt6-switch-debug` to enable trace logs, and create `qt6-switch-emulator` only when an emulator marker is wanted. Clean-start Ryubing with the documented command in `docs/astris-testing.md`; starting via `open` can leave stale guest logs or fail to load the requested NRO.
+Ryubing maps `sdmc:/` to `~/Library/Application Support/Ryujinx/sdcard/`. Use `scripts/run-qt-network-test-ryubing.sh` to stage the bundle and debug markers, clean-start the emulator, and wait for the completed test log. Starting via `open` can leave stale guest logs or fail to load the requested NRO.
 
-## Real hardware baseline (2026-07-18)
+## Real hardware evidence
 
-`demo/qt-network-test/fromRealSwitch/` contains the verified run: 15/15 passed, native Qt Google HTTPS returned HTTP 204, 128 root certificates loaded, and OpenSSL provider entropy passed. Re-test after altering any of the above components; do not assume this result applies to a new build.
+Historical real-Switch logs are deliberately not tracked. Treat native Qt HTTPS
+as requiring a fresh hardware run after changing the network, TLS, OpenSSL, or
+build path; retain the run's result outside the repository when needed.

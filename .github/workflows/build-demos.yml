@@ -24,6 +24,9 @@ jobs:
       - name: Build host QtBase tools
         run: ./scripts/build-host-qt-tools.sh
 
+      - name: Build Switch OpenSSL
+        run: ./scripts/build-openssl-switch.sh
+
       - name: Configure Switch QtBase
         run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/configure-qtbase-switch.sh
 
@@ -32,6 +35,9 @@ jobs:
 
       - name: Build widgets demo
         run: ./scripts/build-widgets-probe.sh
+
+      - name: Build QtNetwork demo
+        run: ./scripts/build-qt-network-test.sh
 
       - name: Build host QtShaderTools tools
         run: QT_HOST_PATH="$GITHUB_WORKSPACE/build/qtbase-host" ./scripts/build-host-qtshadertools-tools.sh
@@ -57,4 +63,5 @@ jobs:
       - name: Verify demo outputs exist
         run: |
           test -f demo/widgets-app/qt6-switch-widgets-probe.nro
+          test -f demo/qt-network-test/qt6-switch-network-test.nro
           test -f demo/quick-app/qt6-switch-quick-probe.nro

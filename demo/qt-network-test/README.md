@@ -1,6 +1,7 @@
 # QtNetwork Test
 
-Standalone offline-safe QtNetwork smoke test for Nintendo Switch.
+Standalone QtNetwork smoke test for Nintendo Switch, with offline local checks
+and mandatory live-network checks.
 
 It displays the result on the Switch screen and covers address parsing, URL
 parsing, interface enumeration, proxy defaults, numeric and `localhost`
@@ -17,7 +18,7 @@ Build and run:
 
 ```bash
 ./scripts/build-qt-network-test.sh
-./scripts/run-qt-network-test-astris.sh
+./scripts/run-qt-network-test-ryubing.sh
 ```
 
 The result is printed to stdout and appended on hardware to
@@ -25,6 +26,7 @@ The result is printed to stdout and appended on hardware to
 fails. Emulator socket-service limitations should be treated separately from
 the real Switch result.
 
-For the verified direct Ryubing launch command, SD-card mapping, CA bundle,
-and log locations, see `docs/astris-testing.md` under **Ryubing / Ryujinx:
-QtNetwork Test**.
+The Ryubing runner waits for the final summary, then exits non-zero if any
+probe failed. It stages the CA bundle and writes host output to
+`/tmp/ryubing-network.stdout` and `/tmp/ryubing-network.stderr`; see
+`docs/astris-testing.md` for the SD-card mapping and TLS log locations.

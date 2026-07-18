@@ -59,6 +59,15 @@ export ASTRIS_APP="/path/to/Astris.app"
 export ASTRIS_DATA="/path/to/astrisData"
 ```
 
+### Ryubing / Ryujinx for QtNetwork
+
+The network runner launches Ryubing directly and stages its SD-card files:
+
+```bash
+export RYUBING_APP="/path/to/Ryujinx"
+export RYUBING_SDCARD="/path/to/Ryujinx/sdcard"
+```
+
 ### GitHub CLI
 
 Only required if you want to publish this repo from the command line:

@@ -3,6 +3,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OPENSSL_VERSION="${OPENSSL_VERSION:-3.0.16}"
+OPENSSL_SHA256="${OPENSSL_SHA256:-57e03c50feab5d31b152af2b764f10379aecd8ee92f16c985983ce4a99f7ef86}"
 BUILD_ROOT="${OPENSSL_BUILD_ROOT:-${REPO_ROOT}/build/openssl-switch}"
 SOURCE_DIR="${BUILD_ROOT}/src/openssl-${OPENSSL_VERSION}"
 ARCHIVE="${BUILD_ROOT}/openssl-${OPENSSL_VERSION}.tar.gz"
@@ -12,6 +13,11 @@ if [ ! -d "${SOURCE_DIR}" ]; then
     curl -L --fail --silent --show-error \
         "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" \
         -o "${ARCHIVE}"
+    ACTUAL_SHA256="$(openssl dgst -sha256 -r "${ARCHIVE}" | awk '{print $1}')"
+    if [ "${ACTUAL_SHA256}" != "${OPENSSL_SHA256}" ]; then
+        echo "OpenSSL archive checksum mismatch for ${OPENSSL_VERSION}" >&2
+        exit 1
+    fi
     tar -xzf "${ARCHIVE}" -C "${BUILD_ROOT}/src"
 fi
 

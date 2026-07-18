@@ -12,7 +12,7 @@ Fresh clone:
 
 ```bash
 git clone --recurse-submodules \
-  -b codex/qtquick-main-ready \
+  -b main \
   https://github.com/karaketir16/qt6-switch-demo.git
 ```
 
@@ -22,10 +22,10 @@ If the submodules were not initialized during clone:
 git submodule update --init --recursive
 ```
 
-To refresh them later:
+To restore the exact submodule revisions tracked by the checked-out commit:
 
 ```bash
-git submodule update --remote --recursive
+git submodule update --init --recursive
 ```
 
 The active submodule remotes are expected to be:
@@ -56,6 +56,8 @@ Output directory:
 Configure:
 
 ```bash
+./scripts/build-openssl-switch.sh
+
 QT_HOST_PATH="$(pwd)/build/qtbase-host" \
 ./scripts/configure-qtbase-switch.sh
 ```
@@ -77,7 +79,7 @@ docker run --rm \
   -v "$(pwd):$(pwd)" \
   -w "$(pwd)/build/qtbase-switch" \
   devkitpro/devkita64 \
-  bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Widgets plugins/platforms/libqswitch.a'
+  bash -lc 'cmake --build "$(pwd)" --parallel "$(nproc)" --target Core Gui Network Widgets OpenGL OpenGLWidgets plugins/platforms/libqswitch.a plugins/tls/libqopensslbackend.a'
 ```
 
 Do not use a plain `cmake --build` here on a fresh tree. That asks Qt to build extra modules such as `QtTest`, and the Switch toolchain does not provide everything those optional pieces expect.
@@ -91,6 +93,7 @@ At minimum, the following outputs should exist:
 - `lib/libQt6OpenGL.a`
 - `lib/libQt6OpenGLWidgets.a`
 - `plugins/platforms/libqswitch.a`
+- `plugins/tls/libqopensslbackend.a`
 
 Those files are generated under:
 

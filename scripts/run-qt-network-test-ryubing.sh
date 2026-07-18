@@ -3,11 +3,10 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NRO_PATH="${1:-${REPO_ROOT}/demo/qt-network-test/qt6-switch-network-test.nro}"
-ASTRIS_APP="${ASTRIS_APP:-/Volumes/T7/Applications/Astris/Astris.app}"
-ASTRIS_DATA="${ASTRIS_DATA:-/Volumes/T7/astrisData}"
-TARGET_DIR="${ASTRIS_DATA}/homebrew/qt6-switch-network-test"
-GUEST_TRACE="${ASTRIS_DATA}/sdcard/qt6-switch-network-test.log"
-GUEST_CA_BUNDLE="${ASTRIS_DATA}/sdcard/qt6-switch-ca-bundle.pem"
+RYUBING_APP="${RYUBING_APP:-/Volumes/T7/Ryubing/Ryujinx.app/Contents/MacOS/Ryujinx}"
+RYUBING_SDCARD="${RYUBING_SDCARD:-${HOME}/Library/Application Support/Ryujinx/sdcard}"
+GUEST_TRACE="${RYUBING_SDCARD}/qt6-switch-network-test.log"
+GUEST_CA_BUNDLE="${RYUBING_SDCARD}/qt6-switch-ca-bundle.pem"
 
 find_ca_bundle() {
     local candidate
@@ -25,10 +24,9 @@ find_ca_bundle() {
     return 1
 }
 
-mkdir -p "${TARGET_DIR}"
-cp -f "${NRO_PATH}" "${TARGET_DIR}/qt6-switch-network-test.nro"
+mkdir -p "${RYUBING_SDCARD}"
 rm -f "${GUEST_TRACE}"
-touch "${ASTRIS_DATA}/sdcard/qt6-switch-emulator"
+touch "${RYUBING_SDCARD}/qt6-switch-emulator"
 if CA_BUNDLE="$(find_ca_bundle)"; then
     cp -f "${CA_BUNDLE}" "${GUEST_CA_BUNDLE}"
     echo "Staged CA bundle: ${CA_BUNDLE}"
@@ -37,22 +35,20 @@ else
     echo "No host CA bundle found; native Qt HTTPS is expected to reject public certificates." >&2
 fi
 if [ "${QT_SWITCH_DEBUG_LOG:-0}" = 1 ]; then
-    touch "${ASTRIS_DATA}/sdcard/qt6-switch-debug"
+    touch "${RYUBING_SDCARD}/qt6-switch-debug"
 else
-    rm -f "${ASTRIS_DATA}/sdcard/qt6-switch-debug"
+    rm -f "${RYUBING_SDCARD}/qt6-switch-debug"
 fi
-pkill -x Astris || true
-sleep 1
-open -a "${ASTRIS_APP}" "${TARGET_DIR}/qt6-switch-network-test.nro"
+
+pkill -f "${RYUBING_APP}" || true
+"${RYUBING_APP}" "${NRO_PATH}" >/tmp/ryubing-network.stdout 2>/tmp/ryubing-network.stderr &
 for _ in $(seq 1 40); do
     [ -f "${GUEST_TRACE}" ] && grep -q '^network-test: ' "${GUEST_TRACE}" && break
     sleep 1
 done
 if [ -f "${GUEST_TRACE}" ] && grep -q '^network-test: ' "${GUEST_TRACE}"; then
     cat "${GUEST_TRACE}"
-    if grep -q '^FAIL ' "${GUEST_TRACE}"; then
-        exit 1
-    fi
+    grep -q '^FAIL ' "${GUEST_TRACE}" && exit 1
 else
     echo "Missing or incomplete guest trace: ${GUEST_TRACE}" >&2
     exit 1
