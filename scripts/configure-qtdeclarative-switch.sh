@@ -9,12 +9,16 @@ TOOLCHAIN_FILE="${3:-${REPO_ROOT}/extras/toolchain-switch.cmake}"
 QT_HOST_PATH_VALUE="${QT_HOST_PATH:-${4:-${REPO_ROOT}/build/qtbase-host}}"
 QT_SWITCH_PREFIX="${QT_SWITCH_PREFIX:-${5:-${REPO_ROOT}/build/qtbase-switch}}"
 QTDECLARATIVE_HOST_BUILD="${QTDECLARATIVE_HOST_BUILD:-${REPO_ROOT}/build/qtdeclarative-host}"
+QT_TEST_HOST_BUILD="${QT_TEST_HOST_BUILD:-${REPO_ROOT}/build/qtbase-test-host}"
 QTSHADERTOOLS_HOST_BUILD="${QTSHADERTOOLS_HOST_BUILD:-${REPO_ROOT}/build/qtshadertools-host}"
 QTSHADERTOOLS_SWITCH_BUILD="${QTSHADERTOOLS_SWITCH_BUILD:-${REPO_ROOT}/build/qtshadertools-switch}"
 QT_CMAKE_OVERLAY_DIR="${QT_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtbase-switch-cmake-overlay}"
 QT_BASE_CMAKE_DIR="${QT_SWITCH_PREFIX}/lib/cmake/Qt6"
+QT_TEST_CMAKE_DIR="${QT_SWITCH_PREFIX}/lib/cmake/Qt6Test"
 QTDECLARATIVE_HOST_CMAKE_OVERLAY_DIR="${QTDECLARATIVE_HOST_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtdeclarative-host-cmake-overlay}"
 QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR="${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR:-${REPO_ROOT}/build/qtshadertools-host-cmake-overlay}"
+QT_BUILD_TESTS_VALUE="${QT_BUILD_TESTS:-OFF}"
+QT_BUILD_TESTS_BATCHED_VALUE="${QT_BUILD_TESTS_BATCHED:-OFF}"
 
 if [ -z "${QT_HOST_PATH_VALUE}" ]; then
     echo "QT_HOST_PATH is required for QtDeclarative cross compilation." >&2
@@ -45,6 +49,11 @@ fi
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6"
 cp -R "${QT_BASE_CMAKE_DIR}/." "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/"
+for qt_config_dir in "${QT_SWITCH_PREFIX}"/lib/cmake/Qt6*; do
+    if [ -d "${qt_config_dir}" ] && [ "${qt_config_dir}" != "${QT_BASE_CMAKE_DIR}" ]; then
+        cp -R "${qt_config_dir}" "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/"
+    fi
+done
 cp "${REPO_ROOT}/third_party/qtbase/cmake/QtFileConfigure.txt.in" \
     "${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6/QtFileConfigure.txt.in"
 mkdir -p "${QTDECLARATIVE_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6QmlTools"
@@ -110,6 +119,7 @@ docker run --rm \
             -DCMAKE_TOOLCHAIN_FILE='${TOOLCHAIN_FILE}' \
             -DCMAKE_BUILD_TYPE=Release \
             -DQt6_DIR='${QT_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6' \
+            -DQt6Test_DIR='${QT_TEST_CMAKE_DIR}' \
             -DQt6Core_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Core' \
             -DQt6Gui_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Gui' \
             -DQt6Network_DIR='${QT_SWITCH_PREFIX}/lib/cmake/Qt6Network' \
@@ -123,17 +133,20 @@ docker run --rm \
             -DQt6ShaderToolsTools_DIR='${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6ShaderToolsTools' \
             -DQT_SWITCH_QTSHADERTOOLS_MACROS='${REPO_ROOT}/third_party/qtshadertools/tools/qsb/Qt6ShaderToolsMacros.cmake' \
             -DQt6QmlTools_DIR='${QTDECLARATIVE_HOST_CMAKE_OVERLAY_DIR}/lib/cmake/Qt6QmlTools' \
+            -DQt6Test_DIR='${QT_TEST_HOST_BUILD}/lib/cmake/Qt6Test' \
             -DQT_ADDITIONAL_PACKAGES_PREFIX_PATH='${QTSHADERTOOLS_SWITCH_BUILD}' \
             -DQT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH='${QTDECLARATIVE_HOST_CMAKE_OVERLAY_DIR};${QTDECLARATIVE_HOST_BUILD};${QTSHADERTOOLS_HOST_CMAKE_OVERLAY_DIR};${QTSHADERTOOLS_HOST_BUILD}' \
             -DQT_HOST_PATH='${QT_HOST_PATH_VALUE}' \
             -DQT_SKIP_AUTO_PLUGIN_INCLUSION=ON \
+            -DQT_SWITCH_SKIP_QMLTESTRUNNER=ON \
             -DFEATURE_qml_network=OFF \
             -DFEATURE_qml_debug=OFF \
             -DFEATURE_qml_xml_http_request=OFF \
             -DFEATURE_qml_profiler=OFF \
             -DFEATURE_qml_preview=OFF \
             -DQT_BUILD_EXAMPLES=OFF \
-            -DQT_BUILD_TESTS=OFF
+            -DQT_BUILD_TESTS='${QT_BUILD_TESTS_VALUE}' \
+            -DQT_BUILD_TESTS_BATCHED='${QT_BUILD_TESTS_BATCHED_VALUE}'
     "
 
 echo

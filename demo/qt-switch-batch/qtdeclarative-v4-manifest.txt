@@ -1,0 +1,6 @@
+# QV4 and QML-model internals with no external data or host-tool fixture.
+qv4identifiertable|../../third_party/qtdeclarative/tests/auto/qml/qv4identifiertable/tst_qv4identifiertable.cpp
+qv4estable|../../third_party/qtdeclarative/tests/auto/qml/qv4estable/tst_qv4estable.cpp
+qv4urlobject|../../third_party/qtdeclarative/tests/auto/qml/qv4urlobject/tst_qv4urlobject.cpp
+qv4regexp|../../third_party/qtdeclarative/tests/auto/qml/qv4regexp/tst_qv4regexp.cpp
+qqmlchangeset|../../third_party/qtdeclarative/tests/auto/qml/qqmlchangeset/tst_qqmlchangeset.cpp

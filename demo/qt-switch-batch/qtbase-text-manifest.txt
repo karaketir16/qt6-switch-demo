@@ -1,0 +1,3 @@
+# Text/view APIs which have no external test-data or GUI dependency.
+qstringview|../../third_party/qtbase/tests/auto/corelib/text/qstringview/tst_qstringview.cpp||../../third_party/qtbase/tests/auto/corelib/text/qstringview/arrays_of_unknown_bounds.cpp
+qbytearrayview|../../third_party/qtbase/tests/auto/corelib/text/qbytearrayview/tst_qbytearrayview.cpp

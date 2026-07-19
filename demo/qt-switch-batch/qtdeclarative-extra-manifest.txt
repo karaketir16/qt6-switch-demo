@@ -1,0 +1,2 @@
+# Sources that collide with the primary QtDeclarative batch's global QObject helpers.
+qanimationgroupjob|../../third_party/qtdeclarative/tests/auto/qml/animation/qanimationgroupjob/tst_qanimationgroupjob.cpp

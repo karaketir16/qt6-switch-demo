@@ -43,6 +43,114 @@ Do not remove `patches/openssl-3.0.16-switch-rng.patch`: it connects OpenSSL 3's
 
 Keep certificate verification enabled. Generic native Qt public HTTPS can load a PEM root bundle from `sdmc:/qt6-switch-ca-bundle.pem`. The standalone network test instead embeds a Mozilla CA bundle so its emulator test is self-contained; update it intentionally from the documented source and never embed a private key.
 
+## Ryubing GDB debugging
+
+### Local .NET setup
+
+This workspace keeps the pinned .NET SDK on the T7 volume, not in Homebrew.
+The authoritative local settings are in `/Volumes/T7/qt6-switch-demo/.env`:
+
+```bash
+RYUBING_DOTNET_ROOT=/Volumes/T7/tools/dotnet
+```
+
+The pinned Ryubing `global.json` requests SDK `10.0.301` (with feature-band
+roll-forward), and the T7 installation is the supported host runtime. The
+repository scripts already fall back from `DOTNET`/`PATH` to
+`../tools/dotnet/dotnet` relative to the repository, so do not install a
+Homebrew .NET copy just to run Ryubing. When invoking the apphost directly,
+source `scripts/dotnet-env.sh` or derive `DOTNET` from `RYUBING_DOTNET_ROOT`
+and export both variables:
+
+```bash
+export DOTNET=/Volumes/T7/tools/dotnet/dotnet
+export DOTNET_ROOT=/Volumes/T7/tools/dotnet
+```
+
+Confirm with `"$DOTNET" --version` before building or launching. If the
+apphost reports that .NET is missing, check these variables first; the binary
+can exist while its runtime is undiscoverable.
+
+The pinned Ryubing build includes a guest GDB stub. Use headless mode so the
+debug command-line options are applied; GUI launches do not consume those
+headless options.
+
+Do not wrap ultimate-test or other interactive diagnostic launches in a wall-
+clock `timeout`. Start Ryubing with `--suspend-on-start`, attach GDB, and use
+guest breakpoints, `continue`, thread inspection, and the on-screen/SD-card
+step log to distinguish a slow test, a guest crash, and a real hang. A timeout
+may terminate the evidence-producing process before its failure state can be
+inspected.
+
+```bash
+REPO_ROOT="$(pwd)"
+. "${REPO_ROOT}/scripts/dotnet-env.sh"
+third_party/ryubing/src/Ryujinx/bin/Release/net10.0/Ryujinx \
+    --no-gui \
+    --enable-gdb-stub \
+    --gdb-stub-port 55555 \
+    --suspend-on-start \
+    <test-or-demo>.nro
+```
+
+Attach with a host GDB that understands AArch64:
+
+```gdb
+set architecture aarch64
+target remote 127.0.0.1:55555
+info registers
+info threads
+monitor get info
+```
+
+Switch NROs are loaded as PIE images at the guest address reported by
+`monitor get info` (normally `0x8500000`). When setting a breakpoint, use the
+relocated address explicitly. For example, if `main` is `0x2c60` in the ELF,
+set `break *0x8502c60`; ordinary `break main` may try the unrelocated address.
+The ELF is useful for symbols and disassembly, but this port's current test
+ELFs may not provide usable source/DWARF locations to GDB.
+
+The Ryubing stub supports register and memory access, thread inspection,
+continue/step, `vCont`, software breakpoints, stack traces, memory mappings,
+and minidumps. Hardware breakpoints and watchpoints are currently rejected by
+the stub. Enabling the stub disables Ryubing's Lightning JIT, so debug runs are
+slower. Keep the listener on loopback unless remote access is intentional.
+
+## Comprehensive GUI diagnostic
+
+For broad QtBase/QtDeclarative smoke coverage, use the single binary in
+`demo/qt-ultimate-test`. Build it through the pinned devkit container:
+
+QtTest is not required for this diagnostic. The custom GUI harness is
+intentional: it keeps results on screen, logs the active step, and makes GDB
+inspection direct. Use QtTest separately only for focused regression suites
+where its assertion and data-driven test features are useful.
+
+```bash
+scripts/build-qt-module-test.sh \
+    /Volumes/T7/qt6-switch-demo/demo/qt-ultimate-test
+```
+
+The diagnostic is intentionally not a QtTest runner and does not use
+wall-clock test timeouts. It updates the on-screen dashboard one step at a
+time and appends `STEP_BEGIN`, `STEP_END`, and `RUN_END` records to
+`sdmc:/qt6-switch-ultimate-test.log`. During GDB sessions, inspect the stable
+`UltimateWindow::runNextTest` symbol and the `m_currentTest` and
+`m_currentIndex` fields to identify the active check.
+
+Keep unavailable future areas explicit with compile-time gates. For example,
+`QT_ULTIMATE_ENABLE_QML_NETWORK=0` records `Future/qml_network` as `SKIP`;
+enable it only after the corresponding QtQml network feature and libraries
+are present in the Switch build. A successful run must report its exact
+pass/fail/skip counts; do not treat a skipped gated area as a pass.
+
+The current Switch QML path is sensitive to multiple engines and some dynamic
+component/item destruction paths. Ultimate-test QML helpers should reuse the
+window's single `QQmlEngine` and keep dynamic Quick views alive; parse/status
+checks should remain separate from creation/destruction checks until the port
+cleanup path is fixed. Record such gated behavior explicitly in the step
+detail rather than treating it as a pass.
+
 ## Validation hierarchy
 
 1. Compile the changed Qt target and NRO.
