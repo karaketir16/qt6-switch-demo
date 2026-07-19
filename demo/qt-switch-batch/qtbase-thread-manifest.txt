@@ -1,0 +1,7 @@
+# Core synchronization primitives. Kept apart from the broad container batch
+# so failures involving guest thread capacity are attributable.
+qmutex|../../third_party/qtbase/tests/auto/corelib/thread/qmutex/tst_qmutex.cpp
+qreadwritelock|../../third_party/qtbase/tests/auto/corelib/thread/qreadwritelock/tst_qreadwritelock.cpp
+qsemaphore|../../third_party/qtbase/tests/auto/corelib/thread/qsemaphore/tst_qsemaphore.cpp
+qwaitcondition|../../third_party/qtbase/tests/auto/corelib/thread/qwaitcondition/tst_qwaitcondition.cpp
+qdeadlinetimer|../../third_party/qtbase/tests/auto/corelib/kernel/qdeadlinetimer/tst_qdeadlinetimer.cpp

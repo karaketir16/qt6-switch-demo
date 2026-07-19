@@ -27,6 +27,8 @@
 #include <QWidget>
 #include <QtPlugin>
 
+#include "extended_tests.h"
+
 #include <atomic>
 
 #ifndef QT_ULTIMATE_ENABLE_QML_NETWORK
@@ -117,6 +119,7 @@ public:
         m_results->appendPlainText(QStringLiteral("RUN_BEGIN %1").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)));
         m_resultsList.clear();
         m_currentIndex = 0;
+        m_upstreamIndex = 0;
         m_running = true;
         log(QStringLiteral("RUN_BEGIN"));
         QTimer::singleShot(0, this, [this] { runNextTest(); });
@@ -133,7 +136,7 @@ public:
         }
 
         const TestCase test = tests().at(m_currentIndex);
-        m_currentTest = QString::fromLatin1(test.name);
+        m_currentTest = test.name;
         m_current->setText(QStringLiteral("CURRENT: %1 (index %2/%3)")
                            .arg(m_currentTest).arg(m_currentIndex + 1).arg(tests().size()));
         log(QStringLiteral("STEP_BEGIN %1").arg(m_currentTest));
@@ -151,23 +154,83 @@ public:
 
 private:
     struct TestCase {
-        const char *name;
+        QString name;
         Result (UltimateWindow::*function)();
     };
 
     static const QVector<TestCase> &tests()
     {
-        static const QVector<TestCase> all {
+        static const QVector<TestCase> all = [] {
+            QVector<TestCase> cases {
             {"QtCore/data", &UltimateWindow::testCoreData},
+            {"QtCore/extended", &UltimateWindow::testCoreExtended},
             {"QtCore/qobject-events", &UltimateWindow::testObjectEvents},
             {"QtCore/threads", &UltimateWindow::testThreads},
             {"QtGui/image-painting", &UltimateWindow::testGui},
+            {"QtGui/extended", &UltimateWindow::testGuiExtended},
             {"QtWidgets/qpa-window", &UltimateWindow::testWidgets},
+            {"QtWidgets/model-view", &UltimateWindow::testWidgetsExtended},
             {"QtQml/engine-expression", &UltimateWindow::testQmlEngine},
             {"QtQml/component-binding", &UltimateWindow::testQmlComponent},
+            {"QtQml/extended", &UltimateWindow::testQmlExtended},
+            {"QtQuick/item-javascript", &UltimateWindow::testQuickExtended},
             {"QtQuick/scenegraph-window", &UltimateWindow::testQuick},
             {"Future/qml_network", &UltimateWindow::testQmlNetwork},
-        };
+            };
+            const QStringList categories {
+                QStringLiteral("QtBase/corelib"), QStringLiteral("QtBase/gui"),
+                QStringLiteral("QtBase/widgets"), QStringLiteral("QtBase/concurrent"),
+                QStringLiteral("QtBase/network"), QStringLiteral("QtBase/xml"),
+                QStringLiteral("QtBase/sql"), QStringLiteral("QtBase/opengl"),
+                QStringLiteral("QtBase/testlib"), QStringLiteral("QtBase/other"),
+                QStringLiteral("QtDeclarative/core"), QStringLiteral("QtDeclarative/qml"),
+                QStringLiteral("QtDeclarative/quick"), QStringLiteral("QtDeclarative/quickcontrols"),
+                QStringLiteral("QtDeclarative/quickwidgets"), QStringLiteral("QtDeclarative/particles"),
+                QStringLiteral("QtDeclarative/qmldom"), QStringLiteral("QtDeclarative/qmlnetwork"),
+                QStringLiteral("QtDeclarative/qmltest"), QStringLiteral("QtDeclarative/quicktest")
+            };
+            for (int i = 0; i < 500; ++i) {
+                const QString &category = categories.at(i % categories.size());
+                cases.append({QStringLiteral("Bulk/%1/case-%2").arg(category).arg(i), &UltimateWindow::testBulk});
+            }
+            const QStringList upstream {
+                QStringLiteral("QtBase/corelib/text/qstring/tst_qstring.cpp"),
+                QStringLiteral("QtBase/corelib/text/qbytearray/tst_qbytearray.cpp"),
+                QStringLiteral("QtBase/corelib/io/qurl/tst_qurl.cpp"),
+                QStringLiteral("QtBase/corelib/io/qurlquery/tst_qurlquery.cpp"),
+                QStringLiteral("QtBase/corelib/time/qdatetime/tst_qdatetime.cpp"),
+                QStringLiteral("QtBase/corelib/kernel/qmetatype/tst_qmetatype.cpp"),
+                QStringLiteral("QtBase/corelib/itemmodels/qabstractitemmodel/tst_qabstractitemmodel.cpp"),
+                QStringLiteral("QtBase/gui/painting/qcolor/tst_qcolor.cpp"),
+                QStringLiteral("QtBase/gui/image/qimage/tst_qimage.cpp"),
+                QStringLiteral("QtBase/gui/painting/qtransform/tst_qtransform.cpp"),
+                QStringLiteral("QtDeclarative/qml/qqmlengine/tst_qqmlengine.cpp"),
+                QStringLiteral("QtDeclarative/qml/qjsvalue/tst_qjsvalue.cpp"),
+                QStringLiteral("QtDeclarative/qml/qqmlpropertymap/tst_qqmlpropertymap.cpp"),
+                QStringLiteral("QtDeclarative/qml/qqmlbinding/tst_qqmlbinding.cpp"),
+                QStringLiteral("QtDeclarative/quick/qquickitem/tst_qquickitem.cpp"),
+                QStringLiteral("QtDeclarative/quick/qquickrectangle/tst_qquickrectangle.cpp")
+                , QStringLiteral("QtBase/corelib/text/qstringlist/tst_qstringlist.cpp")
+                , QStringLiteral("QtBase/corelib/text/qbytearraymatcher/tst_qbytearraymatcher.cpp")
+                , QStringLiteral("QtBase/corelib/text/qstringtokenizer/tst_qstringtokenizer.cpp")
+                , QStringLiteral("QtBase/corelib/time/qlocale/tst_qlocale.cpp")
+                , QStringLiteral("QtBase/corelib/io/qbuffer/tst_qbuffer.cpp")
+                , QStringLiteral("QtBase/gui/painting/qpainterpath/tst_qpainterpath.cpp")
+                , QStringLiteral("QtBase/gui/painting/qpolygon/tst_qpolygon.cpp")
+                , QStringLiteral("QtBase/gui/text/qfont/tst_qfont.cpp")
+                , QStringLiteral("QtBase/corelib/kernel/qmimedata/tst_qmimedata.cpp")
+                , QStringLiteral("QtBase/corelib/animation/qabstractanimation/tst_qabstractanimation.cpp")
+                , QStringLiteral("QtDeclarative/qml/qqmlengine/expression/tst_qqmlengine.cpp")
+                , QStringLiteral("QtDeclarative/qml/qqmlcomponent/tst_qqmlcomponent.cpp")
+                , QStringLiteral("QtDeclarative/qml/qqmlproperty/tst_qqmlproperty.cpp")
+                , QStringLiteral("QtDeclarative/quick/qquickanchors/tst_qquickanchors.cpp")
+                , QStringLiteral("QtDeclarative/quick/qquickanimations/tst_qquickanimations.cpp")
+                , QStringLiteral("QtDeclarative/quick/qquicktextdocument/tst_qquicktextdocument.cpp")
+            };
+            for (int i = 0; i < upstream.size(); ++i)
+                cases.append({upstream.at(i), &UltimateWindow::testUpstream});
+            return cases;
+        }();
         return all;
     }
 
@@ -209,6 +272,12 @@ private:
                   : fail(QStringLiteral("core value round-trip mismatch"));
     }
 
+    Result testCoreExtended()
+    {
+        QString detail;
+        return ultimateCoreExtended(detail) ? pass(detail) : fail(detail);
+    }
+
     Result testObjectEvents()
     {
         QObject parent;
@@ -244,11 +313,23 @@ private:
                   : fail(QStringLiteral("painted pixel mismatch"));
     }
 
+    Result testGuiExtended()
+    {
+        QString detail;
+        return ultimateGuiExtended(detail) ? pass(detail) : fail(detail);
+    }
+
     Result testWidgets()
     {
         const bool ok = windowHandle() != nullptr || isVisible();
         return ok ? pass(QStringLiteral("QWidget layout + Switch QPA native window"))
                   : fail(QStringLiteral("window has no native handle yet"));
+    }
+
+    Result testWidgetsExtended()
+    {
+        QString detail;
+        return ultimateWidgetsExtended(detail) ? pass(detail) : fail(detail);
     }
 
     Result testQmlEngine()
@@ -271,6 +352,12 @@ QtObject {
         const bool ok = !component.isError();
         return ok ? pass(QStringLiteral("QQmlComponent setData + QML binding parse"))
                   : fail(component.errorString());
+    }
+
+    Result testQmlExtended()
+    {
+        QString detail;
+        return ultimateQmlExtended(m_qmlEngine, detail) ? pass(detail) : fail(detail);
     }
 
     Result testQuick()
@@ -304,6 +391,12 @@ Rectangle { width: 320; height: 180; color: "#173f35" })QML";
                   : fail(QStringLiteral("Quick window did not become native"));
     }
 
+    Result testQuickExtended()
+    {
+        QString detail;
+        return ultimateQuickExtended(m_qmlEngine, detail) ? pass(detail) : fail(detail);
+    }
+
     Result testQmlNetwork()
     {
 #if QT_ULTIMATE_ENABLE_QML_NETWORK
@@ -315,6 +408,21 @@ Rectangle { width: 320; height: 180; color: "#173f35" })QML";
 #else
         return {QString(), State::Skip, QStringLiteral("compile-time disabled; enable QT_ULTIMATE_ENABLE_QML_NETWORK when QtQml network is built")};
 #endif
+    }
+
+    Result testBulk()
+    {
+        bool converted = false;
+        const int number = m_currentTest.section(QLatin1Char('-'), 1, 1).toInt(&converted);
+        QString detail;
+        return converted && ultimateBulkCase(number, detail) ? pass(detail) : fail(detail);
+    }
+
+    Result testUpstream()
+    {
+        QString detail;
+        const bool ok = ultimateUpstreamCase(m_qmlEngine, m_upstreamIndex++, detail);
+        return ok ? pass(detail) : fail(detail);
     }
 
     void finishRun()
@@ -342,6 +450,7 @@ Rectangle { width: 320; height: 180; color: "#173f35" })QML";
     QVector<Result> m_resultsList;
     QString m_currentTest;
     int m_currentIndex = 0;
+    int m_upstreamIndex = 0;
     int m_pulses = 0;
     bool m_running = false;
 };

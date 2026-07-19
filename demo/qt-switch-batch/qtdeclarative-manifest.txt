@@ -1,0 +1,6 @@
+# QML engine/value coverage that does not require qmltestrunner or Quick UI.
+qjsprimitivevalue|../../third_party/qtdeclarative/tests/auto/qml/qjsprimitivevalue/tst_qjsprimitivevalue.cpp
+qjsvalueiterator|../../third_party/qtdeclarative/tests/auto/qml/qjsvalueiterator/tst_qjsvalueiterator.cpp
+qjsmanagedvalue|../../third_party/qtdeclarative/tests/auto/qml/qjsmanagedvalue/tst_qjsmanagedvalue.cpp
+qabstractanimationjob|../../third_party/qtdeclarative/tests/auto/qml/animation/qabstractanimationjob/tst_qabstractanimationjob.cpp
+qsequentialanimationgroupjob|../../third_party/qtdeclarative/tests/auto/qml/animation/qsequentialanimationgroupjob/tst_qsequentialanimationgroupjob.cpp

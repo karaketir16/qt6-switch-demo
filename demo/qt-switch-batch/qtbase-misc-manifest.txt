@@ -1,0 +1,5 @@
+# Core-only algorithms and internal containers without external data fixtures.
+qnumeric|../../third_party/qtbase/tests/auto/corelib/global/qnumeric/tst_qnumeric.cpp
+qbytearraymatcher|../../third_party/qtbase/tests/auto/corelib/text/qbytearraymatcher/tst_qbytearraymatcher.cpp|-fexceptions
+qringbuffer|../../third_party/qtbase/tests/auto/corelib/tools/qringbuffer/tst_qringbuffer.cpp
+qoffsetstringarray|../../third_party/qtbase/tests/auto/corelib/tools/qoffsetstringarray/tst_qoffsetstringarray.cpp

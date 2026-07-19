@@ -45,9 +45,42 @@ Keep certificate verification enabled. Generic native Qt public HTTPS can load a
 
 ## Ryubing GDB debugging
 
+### Local .NET setup
+
+This workspace keeps the pinned .NET SDK on the T7 volume, not in Homebrew.
+The authoritative local settings are in `/Volumes/T7/qt6-switch-demo/.env`:
+
+```bash
+RYUBING_DOTNET_ROOT=/Volumes/T7/tools/dotnet
+```
+
+The pinned Ryubing `global.json` requests SDK `10.0.301` (with feature-band
+roll-forward), and the T7 installation is the supported host runtime. The
+repository scripts already fall back from `DOTNET`/`PATH` to
+`../tools/dotnet/dotnet` relative to the repository, so do not install a
+Homebrew .NET copy just to run Ryubing. When invoking the apphost directly,
+source `scripts/dotnet-env.sh` or derive `DOTNET` from `RYUBING_DOTNET_ROOT`
+and export both variables:
+
+```bash
+export DOTNET=/Volumes/T7/tools/dotnet/dotnet
+export DOTNET_ROOT=/Volumes/T7/tools/dotnet
+```
+
+Confirm with `"$DOTNET" --version` before building or launching. If the
+apphost reports that .NET is missing, check these variables first; the binary
+can exist while its runtime is undiscoverable.
+
 The pinned Ryubing build includes a guest GDB stub. Use headless mode so the
 debug command-line options are applied; GUI launches do not consume those
 headless options.
+
+Do not wrap ultimate-test or other interactive diagnostic launches in a wall-
+clock `timeout`. Start Ryubing with `--suspend-on-start`, attach GDB, and use
+guest breakpoints, `continue`, thread inspection, and the on-screen/SD-card
+step log to distinguish a slow test, a guest crash, and a real hang. A timeout
+may terminate the evidence-producing process before its failure state can be
+inspected.
 
 ```bash
 REPO_ROOT="$(pwd)"
@@ -110,6 +143,13 @@ Keep unavailable future areas explicit with compile-time gates. For example,
 enable it only after the corresponding QtQml network feature and libraries
 are present in the Switch build. A successful run must report its exact
 pass/fail/skip counts; do not treat a skipped gated area as a pass.
+
+The current Switch QML path is sensitive to multiple engines and some dynamic
+component/item destruction paths. Ultimate-test QML helpers should reuse the
+window's single `QQmlEngine` and keep dynamic Quick views alive; parse/status
+checks should remain separate from creation/destruction checks until the port
+cleanup path is fixed. Record such gated behavior explicitly in the step
+detail rather than treating it as a pass.
 
 ## Validation hierarchy
 

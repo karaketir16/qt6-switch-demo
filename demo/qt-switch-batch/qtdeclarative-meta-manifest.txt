@@ -1,0 +1,3 @@
+# Internal QML metadata APIs that exercise no on-disk fixture.
+qqmlopenmetaobject|../../third_party/qtdeclarative/tests/auto/qml/qqmlopenmetaobject/tst_qqmlopenmetaobject.cpp
+qqmlcpputils|../../third_party/qtdeclarative/tests/auto/qml/qqmlcpputils/tst_qqmlcpputils.cpp

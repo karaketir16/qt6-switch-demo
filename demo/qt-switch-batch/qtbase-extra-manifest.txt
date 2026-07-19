@@ -1,0 +1,4 @@
+# Sources that collide with the primary QtBase batch's global test helpers.
+qmap|../../third_party/qtbase/tests/auto/corelib/tools/qmap/tst_qmap.cpp
+qcache|../../third_party/qtbase/tests/auto/corelib/tools/qcache/tst_qcache.cpp
+qsharedpointer|../../third_party/qtbase/tests/auto/corelib/tools/qsharedpointer/tst_qsharedpointer.cpp||../../third_party/qtbase/tests/auto/corelib/tools/qsharedpointer/forwarddeclared.cpp,../../third_party/qtbase/tests/auto/corelib/tools/qsharedpointer/nontracked.cpp,../../third_party/qtbase/tests/auto/corelib/tools/qsharedpointer/wrapper.cpp

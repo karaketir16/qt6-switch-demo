@@ -1,0 +1,12 @@
+# Additional Core-only APIs. Kept separate so a symbol collision does not
+# reduce coverage of the established container/text batches.
+qglobalstatic|../../third_party/qtbase/tests/auto/corelib/global/qglobalstatic/tst_qglobalstatic.cpp|-fexceptions
+qmetamethod|../../third_party/qtbase/tests/auto/corelib/kernel/qmetamethod/tst_qmetamethod.cpp
+qsignalmapper|../../third_party/qtbase/tests/auto/corelib/kernel/qsignalmapper/tst_qsignalmapper.cpp
+qatomicscopedvaluerollback|../../third_party/qtbase/tests/auto/corelib/tools/qatomicscopedvaluerollback/tst_qatomicscopedvaluerollback.cpp
+qalgorithms|../../third_party/qtbase/tests/auto/corelib/tools/qalgorithms/tst_qalgorithms.cpp
+qmargins|../../third_party/qtbase/tests/auto/corelib/tools/qmargins/tst_qmargins.cpp
+qtendian|../../third_party/qtbase/tests/auto/corelib/global/qtendian/tst_qtendian.cpp
+qfloat16|../../third_party/qtbase/tests/auto/corelib/global/qfloat16/tst_qfloat16.cpp
+qbuffer|../../third_party/qtbase/tests/auto/corelib/io/qbuffer/tst_qbuffer.cpp
+qipaddress|../../third_party/qtbase/tests/auto/corelib/io/qipaddress/tst_qipaddress.cpp

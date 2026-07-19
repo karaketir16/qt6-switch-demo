@@ -1,0 +1,45 @@
+diff --git a/src/Ryujinx.HLE/HOS/Kernel/SupervisorCall/Syscall.cs b/src/Ryujinx.HLE/HOS/Kernel/SupervisorCall/Syscall.cs
+index a58dd2480..2c795a8e4 100644
+--- a/src/Ryujinx.HLE/HOS/Kernel/SupervisorCall/Syscall.cs
++++ b/src/Ryujinx.HLE/HOS/Kernel/SupervisorCall/Syscall.cs
+@@ -1839,6 +1839,16 @@ namespace Ryujinx.HLE.HOS.Kernel.SupervisorCall
+         {
+             KProcess currentProcess = KernelStatic.GetCurrentProcess();
+ 
++            // The libnx pthread implementation closes a detached thread's
++            // handle after its entry function returns. Keep this trace next
++            // to the resource-limit trace so a thread-capacity failure can
++            // distinguish an absent close SVC from a KThread refcount leak.
++            if (currentProcess.HandleTable.GetKThread(handle) != null)
++            {
++                Logger.Info?.Print(LogClass.Kernel,
++                    $"CloseThreadHandle: handle=0x{handle:X8}");
++            }
++
+             return currentProcess.HandleTable.CloseHandle(handle) ? Result.Success : KernelResult.InvalidHandle;
+         }
+ 
+@@ -2515,6 +2525,10 @@ namespace Ryujinx.HLE.HOS.Kernel.SupervisorCall
+             if (currentProcess.ResourceLimit != null &&
+                !currentProcess.ResourceLimit.Reserve(LimitableResource.Thread, 1, timeout))
+             {
++                Logger.Warning?.Print(LogClass.Kernel,
++                    $"CreateThread resource limit exhausted: current={currentProcess.ResourceLimit.GetCurrentValue(LimitableResource.Thread)}, " +
++                    $"limit={currentProcess.ResourceLimit.GetLimitValue(LimitableResource.Thread)}, " +
++                    $"remaining={currentProcess.ResourceLimit.GetRemainingValue(LimitableResource.Thread)}");
+                 return KernelResult.ResLimitExceeded;
+             }
+ 
+diff --git a/src/Ryujinx.HLE/HOS/Kernel/Threading/KThread.cs b/src/Ryujinx.HLE/HOS/Kernel/Threading/KThread.cs
+index 4f06752cc..943956e0c 100644
+--- a/src/Ryujinx.HLE/HOS/Kernel/Threading/KThread.cs
++++ b/src/Ryujinx.HLE/HOS/Kernel/Threading/KThread.cs
+@@ -1334,6 +1334,8 @@ namespace Ryujinx.HLE.HOS.Kernel.Threading
+ 
+         protected override void Destroy()
+         {
++            Logger.Info?.Print(LogClass.Kernel, $"DestroyThread: uid={ThreadUid}");
++
+             if (_hasBeenInitialized)
+             {
+                 FreeResources();

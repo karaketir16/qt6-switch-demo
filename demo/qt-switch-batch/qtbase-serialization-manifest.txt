@@ -1,0 +1,7 @@
+# Serialization and URL parsing APIs that do not need external test-data.
+qcborvalue_json|../../third_party/qtbase/tests/auto/corelib/serialization/qcborvalue_json/tst_qcborvalue_json.cpp
+qmessageauthenticationcode|../../third_party/qtbase/tests/auto/corelib/tools/qmessageauthenticationcode/tst_qmessageauthenticationcode.cpp
+qurlquery|../../third_party/qtbase/tests/auto/corelib/io/qurlquery/tst_qurlquery.cpp
+qurlinternal|../../third_party/qtbase/tests/auto/corelib/io/qurlinternal/tst_qurlinternal.cpp||../../third_party/qtbase/tests/auto/corelib/io/qurlinternal/utf8data.cpp
+qdataurl|../../third_party/qtbase/tests/auto/corelib/io/qdataurl/tst_qdataurl.cpp
+qcompare|../../third_party/qtbase/tests/auto/corelib/global/qcompare/tst_qcompare.cpp

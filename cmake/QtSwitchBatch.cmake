@@ -1,0 +1,100 @@
+# Switch-specific QtTest batching without QT_BUILD_TESTS_BATCHED global state.
+#
+# Manifest format: one entry per line
+#     test-name|absolute-or-source-relative-cpp-file[|source-compile-options[|extra-source1,extra-source2]]
+# Blank lines and lines beginning with '#' are ignored.
+
+function(qt_switch_add_batch target)
+    set(options)
+    set(one_value_args MANIFEST RUNNER_SOURCE OUTPUT_DIRECTORY)
+    set(multi_value_args LIBRARIES INCLUDE_DIRECTORIES COMPILE_DEFINITIONS)
+    cmake_parse_arguments(PARSE_ARGV 1 arg "${options}" "${one_value_args}" "${multi_value_args}")
+
+    if(NOT arg_MANIFEST)
+        message(FATAL_ERROR "qt_switch_add_batch(${target}) requires MANIFEST")
+    endif()
+    if(NOT EXISTS "${arg_MANIFEST}")
+        message(FATAL_ERROR "Qt Switch batch manifest does not exist: ${arg_MANIFEST}")
+    endif()
+    if(NOT arg_RUNNER_SOURCE)
+        message(FATAL_ERROR "qt_switch_add_batch(${target}) requires RUNNER_SOURCE")
+    endif()
+
+    file(STRINGS "${arg_MANIFEST}" manifest_lines)
+    set(batch_sources)
+    set(batch_names)
+    set(batch_includes ${arg_INCLUDE_DIRECTORIES})
+    set(index 0)
+
+    foreach(line IN LISTS manifest_lines)
+        string(STRIP "${line}" line)
+        if(line STREQUAL "" OR line MATCHES "^#")
+            continue()
+        endif()
+        string(REPLACE "|" ";" entry "${line}")
+        list(LENGTH entry entry_length)
+        if(entry_length LESS 2 OR entry_length GREATER 4)
+            message(FATAL_ERROR "Malformed Qt Switch batch manifest line: ${line}")
+        endif()
+        list(GET entry 0 test_name)
+        list(GET entry 1 test_source)
+        set(test_compile_options)
+        if(entry_length EQUAL 3)
+            list(GET entry 2 test_compile_options)
+            separate_arguments(test_compile_options NATIVE_COMMAND "${test_compile_options}")
+        endif()
+        if(NOT IS_ABSOLUTE "${test_source}")
+            get_filename_component(test_source "${test_source}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+        endif()
+        if(NOT EXISTS "${test_source}")
+            message(WARNING "[qt-switch-batch] EXCLUDED ${test_name}: missing ${test_source}")
+            continue()
+        endif()
+
+        # Keep the original source path: AUTOMOC must inspect the real test
+        # source to discover an included <test>.moc file. The target is one
+        # executable, so each source is compiled exactly once.
+        set_source_files_properties("${test_source}" PROPERTIES
+            COMPILE_DEFINITIONS "BATCHED_TEST_NAME=\"${test_name}\""
+            COMPILE_OPTIONS "${test_compile_options}")
+        list(APPEND batch_sources "${test_source}")
+        list(APPEND batch_names "${test_name}")
+        get_filename_component(test_include "${test_source}" DIRECTORY)
+        list(APPEND batch_includes "${test_include}")
+        if(entry_length EQUAL 4)
+            list(GET entry 3 extra_sources)
+            string(REPLACE "," ";" extra_sources "${extra_sources}")
+            foreach(extra_source IN LISTS extra_sources)
+                if(NOT IS_ABSOLUTE "${extra_source}")
+                    get_filename_component(extra_source "${extra_source}" ABSOLUTE
+                        BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+                endif()
+                if(NOT EXISTS "${extra_source}")
+                    message(FATAL_ERROR "Qt Switch batch ${test_name}: missing helper source ${extra_source}")
+                endif()
+                list(APPEND batch_sources "${extra_source}")
+                get_filename_component(extra_include "${extra_source}" DIRECTORY)
+                list(APPEND batch_includes "${extra_include}")
+            endforeach()
+        endif()
+        message(STATUS "[qt-switch-batch] INCLUDED ${test_name} ${test_source}")
+        math(EXPR index "${index} + 1")
+    endforeach()
+
+    if(NOT batch_sources)
+        message(FATAL_ERROR "Qt Switch batch ${target} has no usable sources")
+    endif()
+
+    add_executable("${target}" "${arg_RUNNER_SOURCE}" ${batch_sources})
+    set_target_properties("${target}" PROPERTIES AUTOMOC ON)
+    target_compile_definitions("${target}" PRIVATE QTEST_BATCH_TESTS ${arg_COMPILE_DEFINITIONS})
+    target_include_directories("${target}" PRIVATE ${batch_includes})
+    target_link_libraries("${target}" PRIVATE ${arg_LIBRARIES})
+    if(arg_OUTPUT_DIRECTORY)
+        set_target_properties("${target}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${arg_OUTPUT_DIRECTORY}")
+    endif()
+
+    list(LENGTH batch_names batch_count)
+    set_property(TARGET "${target}" PROPERTY QT_SWITCH_BATCH_TESTS "${batch_names}")
+    message(STATUS "[qt-switch-batch] ${target}: ${batch_count} test sources in one binary")
+endfunction()

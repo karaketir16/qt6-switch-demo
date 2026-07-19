@@ -1,0 +1,12 @@
+# Value types and low-level utility classes with no external fixtures.
+qexplicitlyshareddatapointer|../../third_party/qtbase/tests/auto/corelib/tools/qexplicitlyshareddatapointer/tst_qexplicitlyshareddatapointer.cpp
+qexplicitlyshareddatapointerv2|../../third_party/qtbase/tests/auto/corelib/tools/qexplicitlyshareddatapointerv2/tst_qexplicitlyshareddatapointerv2.cpp
+qmakearray|../../third_party/qtbase/tests/auto/corelib/tools/qmakearray/tst_qmakearray.cpp
+qscopedvaluerollback|../../third_party/qtbase/tests/auto/corelib/tools/qscopedvaluerollback/tst_qscopedvaluerollback.cpp
+qtaggedpointer|../../third_party/qtbase/tests/auto/corelib/tools/qtaggedpointer/tst_qtaggedpointer.cpp
+qduplicatetracker|../../third_party/qtbase/tests/auto/corelib/tools/qduplicatetracker/tst_qduplicatetracker.cpp
+qstl|../../third_party/qtbase/tests/auto/corelib/tools/qstl/tst_qstl.cpp
+q20_memory|../../third_party/qtbase/tests/auto/corelib/global/q20/memory/tst_q20_memory.cpp|-fexceptions
+qxp_function_ref|../../third_party/qtbase/tests/auto/corelib/global/qxp/function_ref/tst_qxp_function_ref.cpp|-fexceptions
+qxp_is_virtual_base_of|../../third_party/qtbase/tests/auto/corelib/global/qxp/is_virtual_base_of/tst_is_virtual_base_of.cpp|-fexceptions
+qfreelist|../../third_party/qtbase/tests/auto/corelib/tools/qfreelist/tst_qfreelist.cpp
